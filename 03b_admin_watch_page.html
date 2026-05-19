@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Prototype 03b - Admin: Watch Page (List + Edit)</title>
+<style>
+  :root {
+    --brand: #00A99D;
+    --brand-dark: #008A80;
+    --accent: #E63946;
+    --ink: #1a1a1a;
+    --ink-2: #555;
+    --ink-3: #888;
+    --line: #d0d0d0;
+    --bg: #f4f6f9;
+    --required: #E63946;
+    --inherit: #2e7d32;
+    --warn: #f57c00;
+    --success: #2e7d32;
+    --opencart-blue: #229ac8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    margin: 0;
+    padding: 20px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .doc-title {
+    max-width: 1600px;
+    margin: 0 auto 14px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--ink);
+  }
+  .doc-title h1 { margin: 0 0 4px; font-size: 18px; }
+  .doc-title .sub { color: var(--ink-2); font-size: 12px; }
+
+  .section-marker {
+    max-width: 1600px;
+    margin: 24px auto 8px;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--ink-2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-marker .n {
+    background: var(--ink);
+    color: white;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+  }
+
+  .layout {
+    max-width: 1600px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 14px;
+    align-items: start;
+  }
+
+  .ui-pane {
+    background: white;
+    border: 1px solid var(--line);
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 200px 1fr;
+  }
+
+  /* 左侧导航 */
+  .sidebar {
+    background: #303841;
+    color: #ccc;
+    min-height: 700px;
+  }
+  .sidebar-top {
+    padding: 16px;
+    border-bottom: 1px solid #3d4654;
+    text-align: center;
+  }
+  .sidebar-top .logo {
+    color: var(--brand);
+    font-weight: 900;
+    letter-spacing: 1px;
+    font-size: 14px;
+  }
+  .sidebar-section {
+    padding: 12px 16px 4px;
+    font-size: 10px;
+    color: #5a6878;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    color: #b0bac5;
+    font-size: 12px;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+  }
+  .nav-item:hover { background: #3d4654; }
+  .nav-item.active {
+    background: #3d4654;
+    color: white;
+    border-left-color: var(--brand);
+  }
+  .nav-item .icon { width: 14px; text-align: center; font-size: 11px; }
+  .nav-item.child { padding-left: 36px; font-size: 11px; }
+  .nav-item.child.active { color: var(--brand); font-weight: bold; background: #3d4654; }
+
+  .content { background: white; }
+  .admin-topbar {
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .admin-topbar .crumb { font-size: 12px; color: var(--ink-3); }
+  .admin-topbar .crumb b { color: var(--ink); }
+  .admin-topbar .user { font-size: 12px; color: var(--ink-2); }
+
+  .page-title-bar {
+    padding: 14px 18px;
+    background: #f8f9fa;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .page-title-bar h2 { margin: 0; font-size: 17px; }
+
+  .btn {
+    padding: 7px 14px;
+    border: none;
+    border-radius: 3px;
+    font-size: 12px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-primary { background: var(--opencart-blue); color: white; }
+  .btn-secondary { background: #f0f0f0; color: var(--ink); margin-right: 6px; }
+  .btn-brand { background: var(--brand); color: white; }
+  .btn-warning { background: #f0ad4e; color: white; margin-right: 6px; }
+  .btn-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+
+  /* Filter bar */
+  .filter-bar {
+    padding: 12px 16px;
+    background: #fafafa;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    font-size: 12px;
+    flex-wrap: wrap;
+  }
+  .filter-bar label { display: flex; align-items: center; gap: 4px; }
+  .filter-bar select, .filter-bar input {
+    padding: 4px 7px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    font-size: 12px;
+  }
+  .filter-stat { margin-left: auto; color: var(--ink-2); font-size: 11px; }
+
+  .video-list-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .video-list-table th {
+    background: #f5f5f5;
+    padding: 6px 5px;
+    text-align: left;
+    border-bottom: 2px solid var(--line);
+    font-size: 11px;
+    color: var(--ink-2);
+  }
+  .video-list-table td {
+    padding: 6px 5px;
+    border-bottom: 1px solid #eee;
+  }
+  .video-list-table tr:hover { background: #fafafa; }
+  .product-name { font-weight: 500; }
+  .product-sku { font-size: 10px; color: var(--ink-3); font-family: monospace; }
+  .check { color: var(--success); }
+  .cross { color: var(--ink-3); }
+  .warn-x { color: var(--warn); }
+  .action-link {
+    color: var(--opencart-blue);
+    font-size: 11px;
+    margin-right: 6px;
+    cursor: pointer;
+  }
+
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: bold;
+  }
+  .pill-not { background: #f0f0f0; color: var(--ink-2); }
+  .pill-draft { background: #FFE0B2; color: #E65100; }
+  .pill-published { background: #C8E6C9; color: #1B5E20; }
+
+  /* Edit form */
+  .form-section { padding: 18px; }
+  .form-section + .form-section { border-top: 1px solid #eee; }
+  .form-section h3 {
+    margin: 0 0 12px;
+    font-size: 13px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #eee;
+  }
+  .form-row {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 12px;
+    padding: 8px 0;
+    align-items: center;
+    position: relative;
+  }
+  .form-label { font-size: 12px; }
+  .form-label .req { color: var(--required); margin-left: 2px; }
+  .form-label .opt { color: var(--ink-3); margin-left: 4px; font-size: 10px; font-weight: normal; }
+  .form-input {
+    padding: 6px 9px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    font-size: 12px;
+    width: 100%;
+    font-family: inherit;
+  }
+  .form-input.inherited {
+    background: #F1F8F4;
+    border-color: #C8E6C9;
+  }
+  textarea.form-input { min-height: 56px; resize: vertical; }
+  .form-input[readonly] { background: #fafafa; color: var(--ink-3); }
+  select.form-input { background: white; }
+
+  .upload-box {
+    border: 2px dashed var(--brand);
+    background: #E8F8F6;
+    padding: 14px;
+    text-align: center;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .upload-box.warn { border-color: var(--warn); background: #FFF8E1; }
+  .upload-box .icon { font-size: 22px; color: var(--brand); }
+  .upload-box.warn .icon { color: var(--warn); }
+  .upload-box .text { margin-top: 3px; font-size: 12px; color: var(--ink-2); }
+  .upload-box .meta { margin-top: 2px; font-size: 10px; color: var(--ink-3); }
+
+  .thumb-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .thumb-upload {
+    border: 1px dashed var(--line);
+    aspect-ratio: 4/3;
+    background: #fafafa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: var(--ink-3);
+    cursor: pointer;
+    position: relative;
+  }
+  .thumb-upload.inherited {
+    background: #F1F8F4;
+    border-style: solid;
+    border-color: #C8E6C9;
+  }
+  .thumb-upload.inherited::before {
+    content: "✓ Inherited";
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    background: var(--inherit);
+    color: white;
+    font-size: 9px;
+    padding: 1px 4px;
+    border-radius: 2px;
+  }
+  .thumb-upload .ratio { font-weight: bold; color: var(--brand); font-size: 13px; }
+  .thumb-upload .size { font-size: 10px; }
+
+
+  
+  .tabs {
+    background: white;
+    border-bottom: 1px solid var(--line);
+    padding: 0 18px;
+    display: flex;
+    gap: 2px;
+  }
+  .tab {
+    padding: 10px 14px;
+    color: var(--ink-2);
+    font-size: 12px;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+  }
+  .tab.active {
+    color: var(--brand);
+    border-bottom-color: var(--brand);
+    font-weight: 600;
+  }
+
+  .inherit-banner {
+    background: #E8F5E9;
+    border-left: 4px solid #2e7d32;
+    padding: 8px 14px;
+    font-size: 12px;
+    color: #1B5E20;
+    position: relative;
+  }
+
+  /* 索引气泡 */
+  .pin {
+    position: absolute;
+    background: var(--accent);
+    color: white;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: bold;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    z-index: 50;
+  }
+  .pin.new { background: var(--accent); }
+  .pin.inherit { background: var(--inherit); }
+  .pin.warn { background: var(--warn); }
+
+  /* 右侧索引 */
+  .note-pane {
+    background: white;
+    border: 1px solid var(--line);
+    position: sticky;
+    top: 16px;
+  }
+  .note-pane-header {
+    background: #1a1a1a;
+    color: white;
+    padding: 10px 14px;
+    font-size: 12px;
+    font-weight: bold;
+  }
+  .note-list { padding: 8px 0; max-height: 90vh; overflow-y: auto; }
+  .note-item {
+    padding: 10px 14px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 12px;
+    display: flex;
+    gap: 8px;
+  }
+  .note-item:last-child { border-bottom: none; }
+  .note-num {
+    background: var(--accent);
+    color: white;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+  .note-num.new { background: var(--accent); }
+  .note-num.inherit { background: var(--inherit); }
+  .note-num.warn { background: var(--warn); }
+  .note-num.green { background: var(--success); }
+  .note-content { flex: 1; line-height: 1.55; color: var(--ink-2); }
+  .note-content b { color: var(--ink); }
+  .note-content code {
+    background: #f5f5f5;
+    padding: 1px 5px;
+    border-radius: 2px;
+    font-size: 11px;
+    color: var(--brand-dark);
+  }
+  .note-section-title {
+    background: #f5f5f5;
+    padding: 5px 14px;
+    font-size: 11px;
+    font-weight: bold;
+    color: var(--ink-2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .field-map {
+    background: #FFF8E1;
+    border-left: 3px solid var(--warn);
+    padding: 4px 8px;
+    margin-top: 4px;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+  .field-map b { color: var(--warn); }
+</style>
+</head>
+<body>
+
+<div class="doc-title">
+  <h1>Prototype 03b — Admin: Watch Page (List + Edit)</h1>
+  <div class="sub">Catalog › Videos · 全站 Watch Page 统一管理 · 含列表页和编辑页两个视图</div>
+</div>
+
+
+<!-- ==================== 视图 1: Watch Page 列表 ==================== -->
+
+<div class="section-marker">
+  <span class="n">1</span> View 1: Watch Page List (Catalog › Videos)
+</div>
+
+<div class="layout">
+
+  <div class="ui-pane">
+    <!-- 左侧导航 -->
+    <div class="sidebar">
+      <div class="sidebar-top">
+        <div class="logo">SIGNLEADER<br><span style="font-size:9px;color:#888">DISPLAY</span></div>
+      </div>
+      <div class="sidebar-section">Navigation</div>
+      <div class="nav-item"><span class="icon">📊</span> Dashboard</div>
+      <div class="nav-item active"><span class="icon">🏷️</span> Catalog <span style="margin-left:auto">›</span></div>
+      <div class="nav-item child">Categories</div>
+      <div class="nav-item child">Promotions</div>
+      <div class="nav-item child">Header Notice</div>
+      <div class="nav-item child">Products</div>
+      <div class="nav-item child active" style="position:relative">
+        Videos
+        <span style="position:absolute;right:14px;background:var(--accent);color:white;font-size:8px;padding:1px 4px;border-radius:2px">NEW</span>
+      </div>
+      <div class="nav-item child">B2S Holiday</div>
+      <div class="nav-item child">Filters</div>
+      <div class="nav-item child">Attributes</div>
+      <div class="nav-item child">Options</div>
+      <div class="nav-item child">Manufacturers</div>
+      <div class="nav-item child">Design Templates</div>
+      <div class="nav-item child">Setup Instructions</div>
+      <div class="nav-item child">Reviews</div>
+      <div class="nav-item child">Q & A</div>
+      <div class="nav-item child">Blog</div>
+      <div class="nav-item child">Information</div>
+      <div class="nav-item child">Elastic Search</div>
+      <div class="nav-item"><span class="icon">🔌</span> Extensions <span style="margin-left:auto">›</span></div>
+      <div class="nav-item"><span class="icon">🎨</span> Design <span style="margin-left:auto">›</span></div>
+      <div class="nav-item"><span class="icon">🛒</span> Sales <span style="margin-left:auto">›</span></div>
+      <div class="nav-item"><span class="icon">👥</span> Customers <span style="margin-left:auto">›</span></div>
+      <div class="nav-item"><span class="icon">📣</span> Marketing <span style="margin-left:auto">›</span></div>
+    </div>
+
+    <!-- 内容 -->
+    <div class="content">
+      <div class="admin-topbar">
+        <span class="crumb">Catalog › <b>Videos</b></span>
+        <span class="user">👤 Junming Chen ▾</span>
+      </div>
+
+      <div class="page-title-bar" style="position:relative">
+        <span class="pin new" style="top:14px;left:-10px">1</span>
+        <h2>Videos — Watch Page Management</h2>
+        <div>
+          <a class="btn btn-secondary">📊 Export CSV</a>
+        </div>
+      </div>
+
+      <div class="filter-bar" style="position:relative">
+        <span class="pin" style="top:10px;left:-10px">2</span>
+        <label>Status:
+          <select><option>All</option><option>Published</option><option>Draft</option><option>Not Created</option></select>
+        </label>
+        <label>Category:
+          <select><option>All</option><option>Zip Up Booths</option><option>SEG Booths</option></select>
+        </label>
+        <label>Missing:
+          <select><option>Any</option><option>No Captions</option><option>No Chapters</option><option>No Description</option></select>
+        </label>
+        <input type="search" placeholder="🔍 Search by product name / SKU" style="width:180px">
+        <div class="filter-stat">Total <b>247</b> · Published <b style="color:var(--success)">23</b> · Draft <b style="color:var(--warn)">7</b> · Not Created <b>217</b></div>
+      </div>
+
+      <table class="video-list-table">
+        <thead style="position:relative">
+          <tr>
+            <th style="width:30px"><span class="pin" style="top:6px;left:-10px">3</span><input type="checkbox"></th>
+            <th>Product</th>
+            <th style="width:60px">Status</th>
+            <th style="width:38px">Video</th>
+            <th style="width:38px">CC</th>
+            <th style="width:38px">Chapters</th>
+            <th style="width:55px">Description</th>
+            <th style="width:55px">Updated</th>
+            <th style="width:70px">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>
+              <div class="product-name">10ft Pop Up Display Backdrop</div>
+              <div class="product-sku">TSP-VS-10ft-2</div>
+            </td>
+            <td><span class="pill pill-published">Published</span></td>
+            <td><span class="check">✓</span></td>
+            <td><span class="check">✓</span></td>
+            <td><span class="check">✓</span></td>
+            <td><span class="check">Full</span></td>
+            <td style="color:var(--ink-3);font-size:10px">05-12</td>
+            <td>
+              <a class="action-link">Edit</a>
+            </td>
+          </tr>
+          <tr style="position:relative">
+            <td><input type="checkbox"></td>
+            <td>
+              <div class="product-name">8ft PortaZip™ Display - Backlit</div>
+              <div class="product-sku">TSP-PZ-8ft-BL</div>
+            </td>
+            <td><span class="pill pill-draft">Draft</span></td>
+            <td><span class="check">✓</span></td>
+            <td><span class="cross">—</span></td>
+            <td><span class="cross">—</span></td>
+            <td><span class="warn-x">Para 2 missing</span></td>
+            <td style="color:var(--ink-3);font-size:10px">05-10</td>
+            <td>
+              <a class="action-link">Edit</a>
+            </td>
+          </tr>
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>
+              <div class="product-name">10ft Straight Portable Backdrop</div>
+              <div class="product-sku">TSP-VS-10ft-3</div>
+            </td>
+            <td><span class="pill pill-published">Published</span></td>
+            <td><span class="check">✓</span></td>
+            <td><span class="check">✓</span></td>
+            <td><span class="cross">—</span></td>
+            <td><span class="check">Full</span></td>
+            <td style="color:var(--ink-3);font-size:10px">05-08</td>
+            <td>
+              <a class="action-link">Edit</a>
+            </td>
+          </tr>
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>
+              <div class="product-name">10x10 Booth Package 23</div>
+              <div class="product-sku">TSP-PKG-23</div>
+            </td>
+            <td><span class="pill pill-not">Not Created</span></td>
+            <td colspan="4" style="text-align:center;color:var(--ink-3);font-size:10px"></td>
+            <td style="color:var(--ink-3);font-size:10px"></td>
+            <td>
+              <a class="action-link" style="color:var(--brand)">Creat</a>
+            </td>
+          </tr>
+          <tr>
+            <td><input type="checkbox"></td>
+            <td>
+              <div class="product-name">10ft Hair & Beauty Booth 31</div>
+              <div class="product-sku">TSP-HB-31</div>
+            </td>
+            <td><span class="pill pill-draft">Draft</span></td>
+            <td><span class="cross">—</span></td>
+            <td><span class="cross">—</span></td>
+            <td><span class="cross">—</span></td>
+            <td><span class="warn-x">Para 1 missing</span></td>
+            <td style="color:var(--ink-3);font-size:10px">05-02</td>
+            <td>
+              <a class="action-link">Edit</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="padding:10px 16px;background:#fafafa;border-top:1px solid var(--line);display:flex;justify-content:space-between;font-size:11px;position:relative">
+        <span class="pin" style="top:8px;left:-10px">4</span>
+        <div>
+          <button class="btn btn-secondary">Bulk Publish</button>
+          <button class="btn btn-secondary">Bulk Export</button>
+          <button class="btn btn-secondary">Bulk Delete</button>
+        </div>
+        <div style="color:var(--ink-3)">Showing 1-5 of 247 · Prev 1 2 3 ... 50 Next</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 索引 -->
+  <div class="note-pane">
+    <div class="note-pane-header">📌 Videos 模块 列表页 说明索引</div>
+    <div class="note-list">
+
+      <div class="note-item">
+        <span class="note-num new">1</span>
+        <div class="note-content">
+          <b>Catalog 新增 Videos 模块</b><br>
+          • 全站 Watch Page 统一管理入口。与 Product 编辑页中的 Hero Video 区分。<br>
+          • 支持一键导出全部数据。<br>
+          <div class="field-map"><b>数据库表：</b><code>watch_page</code></div>
+        </div>
+      </div>
+
+      <div class="note-item">
+        <span class="note-num">2</span>
+        <div class="note-content">
+          <b>支持多为筛选</b><br>
+          快速定位SEO不友好项：<br>
+          • Status：支持筛选 Published（已发布）、Draft（草稿）、Not Created（未创建），初始默认All<br>
+          • Category：支持根据产品品类筛选，数据源Categories<br>
+          • Missing：支持筛选 No Captions（无字幕）、No Chapters（无章节）、No Description（无介绍），初始默认Any，不作筛选<br>
+          • 支持按产品名 或 Model编码精准搜索，注意自动去除空格<br>
+        </div>
+      </div>
+
+      <div class="note-item">
+        <span class="note-num">3</span>
+        <div class="note-content">
+          <b>视频列表</b><br>
+          可视化管理视频列表：<br>
+          列表与全站产品列表实时同步<br>
+          • Product：展示 产品名 + Model编码<br>
+          • Status：展示视频状态，包括<br>
+          >> Published：已向谷歌发布的视频<br>
+          >> Draft：编辑中未向谷歌发送的视频草稿<br>
+          >> Not Created：未在产品配置页触发创建或在Videos模块中未经点击Creat的产品<br>
+         • Video：视频文件是否为空，否“✅”，是“-”<br>
+         • CC：字幕文件是否为空，否“✅”，是“-”<br>
+         • Chapters：章节是否为空，否“✅”，是“-”<br>
+         • Description：段落描述是否为空<br>
+         >> 均为空，则“-”<br>
+         >> 部分为空，则提示哪部分，如“Para 2 missing”<br>
+         >> 均不为空，则“Full“<br>
+         • Updated：记录保存更新时间<br>
+         • Action：Creat、Edit<br>
+        </div>
+      </div>
+
+
+      <div class="note-item">
+        <span class="note-num">4</span>
+        <div class="note-content">
+          <b>支持批量操作</b><br>
+          • Bulk Publish：支持多选指定产品（草稿），批量发布<br>
+          • Bulk Export：支持多选指定产品，批量导出做内容审计<br>
+          • Bulk Delete：支持多选指定产品，批量清空内部内容，⚠️不是删除产品，清空需二次确认<br>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==================== 视图 2: Watch Page 编辑 ==================== -->
+
+<div class="section-marker">
+  <span class="n">2</span> View 2: Watch Page Edit
+</div>
+
+<div class="layout">
+
+  <div class="ui-pane">
+    <!-- 左侧导航 -->
+    <div class="sidebar">
+      <div class="sidebar-top">
+        <div class="logo">SIGNLEADER<br><span style="font-size:9px;color:#888">DISPLAY</span></div>
+      </div>
+      <div class="sidebar-section">Navigation</div>
+      <div class="nav-item"><span class="icon">📊</span> Dashboard</div>
+      <div class="nav-item active"><span class="icon">🏷️</span> Catalog <span style="margin-left:auto">›</span></div>
+      <div class="nav-item child">Categories</div>
+      <div class="nav-item child">Promotions</div>
+      <div class="nav-item child">Header Notice</div>
+      <div class="nav-item child">Products</div>
+      <div class="nav-item child active">Videos</div>
+      <div class="nav-item child">B2S Holiday</div>
+      <div class="nav-item child">Filters</div>
+      <div class="nav-item child">Attributes</div>
+      <div class="nav-item child">Options</div>
+      <div class="nav-item child">Manufacturers</div>
+      <div class="nav-item child">Design Templates</div>
+      <div class="nav-item child">Setup Instructions</div>
+      <div class="nav-item child">Reviews</div>
+      <div class="nav-item child">Q & A</div>
+      <div class="nav-item child">Blog</div>
+      <div class="nav-item child">Information</div>
+      <div class="nav-item child">Elastic Search</div>
+      <div class="nav-item"><span class="icon">🔌</span> Extensions <span style="margin-left:auto">›</span></div>
+      <div class="nav-item"><span class="icon">🎨</span> Design <span style="margin-left:auto">›</span></div>
+      <div class="nav-item"><span class="icon">🛒</span> Sales <span style="margin-left:auto">›</span></div>
+      <div class="nav-item"><span class="icon">👥</span> Customers <span style="margin-left:auto">›</span></div>
+      <div class="nav-item"><span class="icon">📣</span> Marketing <span style="margin-left:auto">›</span></div>
+    </div>
+
+    <!-- 内容 -->
+    <div class="content">
+      <div class="admin-topbar">
+        <span class="crumb">Catalog › <b>Videos</b> › Edit Watch Page</span>
+        <span class="user">👤 Junming Chen ▾</span>
+      </div>
+
+      <div class="page-title-bar">
+        <h2 style="display:flex;align-items:center;gap:10px">
+          Watch Page — 10ft Pop Up Display Setup Demo
+          <span class="pill pill-draft">Draft</span>
+        </h2>
+        <div>
+          <a class="btn btn-secondary">Cancel</a>
+          <a class="btn btn-warning">💾 Save Draft</a>
+          <a class="btn btn-primary">🚀 Publish</a>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>Basic Information</h3>
+
+        <div class="form-row">
+          <div class="form-label">Linked Product<span class="req">*</span></div>
+          <div style="position:relative">
+            <span class="pin inherit" style="top:4px;right:-26px">2</span>
+            <input type="text" class="form-input inherited" value="10ft Pop Up Display Backdrop (TSP-VS-10ft-2)" readonly>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">URL Slug<span class="req">*</span></div>
+          <div style="display:flex;gap:4px;align-items:center;position:relative">
+            <span class="pin inherit" style="top:4px;right:-26px">3</span>
+            <span style="color:var(--ink-3);font-size:12px">/videos/</span>
+            <input type="text" class="form-input inherited" value="10ft-pop-up-display-backdrop-demo">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">H1 Title<span class="req">*</span></div>
+          <div style="position:relative">
+            <span class="pin inherit" style="top:4px;right:-26px">4</span>
+            <input type="text" class="form-input inherited" value="10ft Pop Up Display Backdrop — Complete Setup Demo Video">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">Publish Date<span class="req"></span></div>
+          <input type="date" class="form-input inherited" value="2026-05-14" style="max-width:200px">
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">Status<span class="req"></span></div>
+          <input type="text" class="form-input inherited" value="Draft" style="max-width:200px">
+        </div>
+
+      </div>
+
+        
+
+      <div class="form-section">
+        <h3>Video & Captions</h3>
+
+        <div class="form-row">
+          <div class="form-label">Long-form Video<span class="req">*</span></div>
+          <div style="position:relative">
+            <span class="pin" style="top:6px;right:-26px">7</span>
+            <div class="upload-box">
+              <div class="icon">🎬</div>
+              <div class="text">Upload Watch Page long-form video</div>
+              <div class="meta">MP4 · 45-90 sec recommended · 1080p</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">Captions (VTT) <span class="opt">Strongly Recommended</span></div>
+          <div style="position:relative">
+            <span class="pin warn" style="top:6px;right:-26px">8</span>
+            <div class="upload-box warn">
+              <div class="icon">📝</div>
+              <div class="text">Upload VTT caption file</div>
+              <div class="meta">Can publish without, but SEO impact reduced</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>Video Description (Visible on Page)</h3>
+
+        <div class="form-row">
+          <div class="form-label">Paragraph 1<span class="req">*</span></div>
+          <div style="position:relative">
+            <span class="pin" style="top:4px;right:-26px">9</span>
+            <textarea class="form-input" placeholder="e.g. Watch how the Signleader 10ft Pop Up Display Backdrop sets up in under 60 seconds..."></textarea>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">Paragraph 2 <span class="opt">Optional</span></div>
+          
+          <textarea class="form-input" placeholder="e.g. Perfect for trade show exhibitors..."></textarea>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>Thumbnails</h3>
+
+        <div class="form-row">
+          <div class="form-label">3 Ratios<span class="req">*</span></div>
+          <div style="position:relative">
+            <span class="pin inherit" style="top:4px;right:-26px">11</span>
+            <div class="thumb-grid">
+              <div class="thumb-upload inherited"><div class="ratio" style="margin-top:8px">16:9</div></div>
+              <div class="thumb-upload inherited"><div class="ratio" style="margin-top:8px">4:3</div></div>
+              <div class="thumb-upload inherited"><div class="ratio" style="margin-top:8px">1:1</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section" style="background:#fafafa">
+        <h3>Chapters & Related Videos (Optional)</h3>
+
+        <div class="form-row">
+          <div class="form-label">Chapters <span class="opt">Optional</span></div>
+          <div style="position:relative">
+            <span class="pin" style="top:4px;right:-26px">12</span>
+            <div style="padding:8px;background:white;border:1px solid #eee;font-size:11px;color:var(--ink-3)">
+              <a style="color:var(--brand)">+ Add Chapter</a> · Configure start/end time and title
+            </div>
+          </div>
+          
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">Related Videos <span class="opt">Optional</span></div>
+          <div style="position:relative">
+            <span class="pin" style="top:4px;right:-26px">13</span>
+            <select class="form-input" style="height:46px"><option>Leave empty = system auto-recommend by category</option></select>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 索引 -->
+  <div class="note-pane">
+    <div class="note-pane-header">📌 Videos 模块 编辑页 说明索引</div>
+
+    <div class="note-list">
+      <div class="note-section-title">Watch Page</div>
+       <div class="note-item">
+        <span class="note-num inherit">1</span>
+        <div class="note-content">
+          <b>操作</b><br>
+          • Cancel：取消编辑；<br>
+          • Save：保存编辑；<br>
+          • Publish：发布&重新发布，watch page页面更新，重新向谷歌提交更新信息；<br>
+        </div>
+      </div>
+
+      <div class="note-section-title">Basic Information 基础信息</div>
+
+      <div class="note-item">
+        <span class="note-num inherit">2</span>
+        <div class="note-content">
+          <b>Linked Product</b><br>
+          • 展示产品名（Model），系统自动填入，不可编辑。
+          <div class="field-map"><b>数据库字段：</b><code>product_id</code> FK</div>
+        </div>
+      </div>
+
+      <div class="note-item">
+        <span class="note-num inherit">3</span>
+        <div class="note-content">
+          <b>URL Slug </b><br>
+          • 记录视频别名<br>
+          • 初始默认 = 产品 slug + <code>-demo</code>，可按需修改<br>
+          • 需保证唯一性。<br>
+          • 可通过产品配置创建获取初始值。
+          <div class="field-map"><b>数据库字段：</b><code>slug</code> VARCHAR(255) UNIQUE</div>
+        </div>
+      </div>
+
+      <div class="note-item">
+        <span class="note-num inherit">4</span>
+        <div class="note-content">
+          <b>H1 Title </b><br>
+          • 视频一级标题<br>
+          • 默认拼接：<code>{Product Name} — Complete Setup Demo Video</code><br>
+          • 可通过产品配置创建获取初始值。
+          <div class="field-map"><b>数据库字段：</b><code>h1_title</code> VARCHAR(200) · <b>用于：</b>页面 H1 + JSON-LD <code>name</code></div>
+        </div>
+      </div>
+
+      <div class="note-item">
+        <span class="note-num inherit">5</span>
+        <div class="note-content">
+          <b>Publish Date </b><br>
+          • 记录发布时间，不可编辑<br>
+          • 未有发布记录时，值为空<br>
+          • 发布后，记录发布时间，在重新发布前值维持不变<br>
+        </div>
+      </div>
+
+      <div class="note-item">
+        <span class="note-num inherit">6</span>
+        <div class="note-content">
+          <b>Status </b><br>
+          • 展示视频状态，不可编辑<br>
+            >> Not Created：未在产品配置页触发创建或在Videos模块中未经点击Creat的产品<br>
+            >> Draft：已创建，未有过发布记录的记录，在save draft后，状态为Draft<br>
+            >> Published：已发布且未再有更新内容的记录，状态为Publish<br>
+            >> Updated：已发布，更新新内容后，在save draft后，状态为Updated<br>
+           
+            
+        </div>
+      </div>
+
+      <div class="note-section-title">Video & Captions<br>区别产品页Hero Video的内容</div>
+
+      <div class="note-item">
+        <span class="note-num">5</span>
+        <div class="note-content">
+          <b>Long-form Video </b><br>
+          与详情页主视频<b>不同的文件</b>：<br>
+          • Hero (详情页) = 30 秒精剪<br>
+          • Watch (Watch Page) = 45-90 秒完整版<br>
+          OSS 路径 <code>/videos/watch/{slug}.mp4</code>
+          <div class="field-map"><b>数据库字段：</b><code>watch_video_url</code> + <code>video_duration</code>（自动检测）</div>
+        </div>
+      </div>
+
+      <div class="note-item">
+        <span class="note-num warn">6</span>
+        <div class="note-content">
+          <b>VTT Captions (Strongly Recommended)</b><br>
+          Google 能读字幕 = 免费 SEO 文本量。<br>
+          没字幕也能发布，但效果打折。
+          <div class="field-map"><b>数据库字段：</b><code>caption_vtt_url</code> VARCHAR(500) NULL</div>
+        </div>
+      </div>
+
+      <div class="note-item">
+        <span class="note-num">7</span>
+        <div class="note-content">
+          <b>Description Para 1 (Required)</b><br>
+          100-200 字符<br>
+          <b>必须在 HTML 中可见</b>，不只在 JSON-LD（否则 Google 忽略）。
+          <div class="field-map"><b>数据库字段：</b><code>description_para_1</code> TEXT</div>
+        </div>
+      </div>
+
+      <div class="note-section-title">Inherited Thumbnails</div>
+
+      <div class="note-item">
+        <span class="note-num inherit">8</span>
+        <div class="note-content">
+          <b>Thumbnails (Inherited, Replaceable)</b><br>
+          默认沿用 Hero Video 的 3 张缩略图。<br>
+          推荐：替换为长版视频首帧，与新视频视觉一致。
+          <div class="field-map"><b>数据库字段：</b><code>thumbnail_16x9</code> / <code>thumbnail_4x3</code> / <code>thumbnail_1x1</code></div>
+        </div>
+      </div>
+
+      <div class="note-section-title">Optional</div>
+
+      <div class="note-item">
+        <span class="note-num">9</span>
+        <div class="note-content">
+          <b>Chapters (Optional)</b><br>
+          配置后生成 JSON-LD 的 Clip + SeekToAction，搜索结果可能显示"跳转到第 X 秒"。<br>
+          不配置不影响收录。
+          <div class="field-map"><b>数据库表：</b><code>watch_page_chapter</code>（N:1）</div>
+        </div>
+      </div>
+
+      <div class="note-item">
+        <span class="note-num">10</span>
+        <div class="note-content">
+          <b>Related Videos (Optional)</b><br>
+          不选 = 系统按同类目自动推荐。
+          <div class="field-map"><b>数据库表：</b><code>watch_page_related</code>（N:N）</div>
+        </div>
+      </div>
+
+      <div class="note-section-title">Hidden Logic (After Save)</div>
+
+      <div class="note-item">
+        <span class="note-num green">A</span>
+        <div class="note-content">
+          <b>Pre-publish Validation</b><br>
+          • Required missing → can save as Draft, cannot Publish<br>
+          • Strongly recommended missing → can Publish, but warning modal pops up
+        </div>
+      </div>
+
+      <div class="note-item">
+        <span class="note-num green">B</span>
+        <div class="note-content">
+          <b>Status State Machine</b><br>
+          <code>Not Created</code> → <code>Draft</code>（创建时）→ <code>Published</code>（必填齐全后）<br>
+          <code>Published</code> 可改回 <code>Draft</code>（下线）
+          <div class="field-map"><b>数据库字段：</b><code>status</code> TINYINT (0=Draft, 1=Published)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 数据库字段汇总 ==================== -->
+
+<div style="max-width:1600px;margin:32px auto 0;background:white;border:1px solid var(--line)">
+  <div style="background:var(--ink);color:white;padding:10px 16px;font-weight:bold;font-size:13px">📋 Database Schema Summary (4 Tables)</div>
+  <div style="padding:16px;font-size:12px">
+
+    <h4 style="margin:0 0 8px;color:var(--brand)">Table 1: <code>product_hero_video</code> (1:1 → oc_product)</h4>
+    <p style="color:var(--ink-3);margin:0 0 8px;font-size:11px">字段定义见 Prototype 03a 的索引说明</p>
+
+    <h4 style="margin:16px 0 8px;color:var(--brand)">Table 2: <code>watch_page</code></h4>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:20px">
+      <thead>
+        <tr style="background:#f5f5f5">
+          <th style="padding:6px;border:1px solid #ddd;text-align:left;font-size:11px">Field</th>
+          <th style="padding:6px;border:1px solid #ddd;text-align:left;font-size:11px">Type</th>
+          <th style="padding:6px;border:1px solid #ddd;text-align:left;font-size:11px;width:50px">Required</th>
+          <th style="padding:6px;border:1px solid #ddd;text-align:left;font-size:11px;width:60px">Inherited</th>
+          <th style="padding:6px;border:1px solid #ddd;text-align:left;font-size:11px">Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td style="padding:5px;border:1px solid #ddd"><code>id</code></td><td style="padding:5px;border:1px solid #ddd">INT PK</td><td style="padding:5px;border:1px solid #ddd">✓</td><td style="padding:5px;border:1px solid #ddd">—</td><td style="padding:5px;border:1px solid #ddd">Primary key</td></tr>
+        <tr><td style="padding:5px;border:1px solid #ddd"><code>product_id</code></td><td style="padding:5px;border:1px solid #ddd">INT FK UNIQ</td><td style="padding:5px;border:1px solid #ddd">✓</td><td style="padding:5px;border:1px solid #ddd">✓</td><td style="padding:5px;border:1px solid #ddd">→ oc_product</td></tr>
+        <tr><td style="padding:5px;border:1px solid #ddd"><code>slug</code></td><td style="padding:5px;border:1px solid #ddd">VARCHAR(255) UNIQ</td><td style="padding:5px;border:1px solid #ddd">✓</td><td style="padding:5px;border:1px solid #ddd">✓</td><td style="padding:5px;border:1px solid #ddd">URL slug</td></tr>
+        <tr><td style="padding:5px;border:1px solid #ddd"><code>h1_title</code></td><td style="padding:5px;border:1px solid #ddd">VARCHAR(200)</td><td style="padding:5px;border:1px solid #ddd">✓</td><td style="padding:5px;border:1px solid #ddd">✓ (editable)</td><td style="padding:5px;border:1px solid #ddd">Page H1</td></tr>
+        <tr><td style="padding:5px;border:1px solid #ddd"><code>watch_video_url</code></td><td style="padding:5px;border:1px solid #ddd">VARCHAR(500)</td><td style="padding:5px;border:1px solid #ddd">✓</td><td style="padding:5px;border:1px solid #ddd">—</td><td style="padding:5px;border:1px solid #ddd">Long-form MP4</td></tr>
+        <tr><td style="padding:5px;border:1px solid #ddd"><code>video_duration</code></td><td style="padding:5px;border:1px solid #ddd">INT</td><td style="padding:5px;border:1px solid #ddd">✓</td><td style="padding:5px;border:1px solid #ddd">—</td><td style="padding:5px;border:1px solid #ddd">≥ 30 sec, auto-detect</td></tr>
+        <tr><td style="padding:5px;border:1px solid #ddd"><code>publish_date</code></td><td style="padding:5px;border:1px solid #ddd">DATETIME</td><td style="padding:5px;border:1px solid #ddd">✓</td><td style="padding:5px;border:1px solid #ddd">default today</td><td style="padding:5px;border:1px solid #ddd">Publish date</td></tr>
+        <tr><td style="padding:5px;border:1px solid #ddd"><code>description_para_1</code></td><td style="padding:5px;border:1px solid #ddd">TEXT</td><td style="padding:5px;border:1px solid #ddd">✓</td><td style="padding:5px;border:1px solid #ddd">—</td><td style="padding:5px;border:1px solid #ddd">First paragraph</td></tr>
+        <tr><td style="padding:5px;border:1px solid #ddd"><code>thumbnail_16x9 / 4x3 / 1x1</code></td><td style="padding:5px;border:1px solid #ddd">VARCHAR(500)</td><td style="padding:5px;border:1px solid #ddd">✓</td><td style="padding:5px;border:1px solid #ddd">✓</td><td style="padding:5px;border:1px solid #ddd">Default inherit from Hero</td></tr>
+        <tr style="background:#FFF8E1"><td style="padding:5px;border:1px solid #ddd"><code>caption_vtt_url</code></td><td style="padding:5px;border:1px solid #ddd">VARCHAR(500)</td><td style="padding:5px;border:1px solid #ddd"><b style="color:var(--warn)">Recommend</b></td><td style="padding:5px;border:1px solid #ddd">—</td><td style="padding:5px;border:1px solid #ddd">VTT captions</td></tr>
+        <tr style="background:#fafafa"><td style="padding:5px;border:1px solid #ddd"><code>description_para_2</code></td><td style="padding:5px;border:1px solid #ddd">TEXT</td><td style="padding:5px;border:1px solid #ddd">—</td><td style="padding:5px;border:1px solid #ddd">—</td><td style="padding:5px;border:1px solid #ddd">Optional</td></tr>
+        <tr><td style="padding:5px;border:1px solid #ddd"><code>video_tags</code></td><td style="padding:5px;border:1px solid #ddd">VARCHAR(500)</td><td style="padding:5px;border:1px solid #ddd">—</td><td style="padding:5px;border:1px solid #ddd">✓</td><td style="padding:5px;border:1px solid #ddd">Inherit from Hero</td></tr>
+        <tr><td style="padding:5px;border:1px solid #ddd"><code>status</code></td><td style="padding:5px;border:1px solid #ddd">TINYINT</td><td style="padding:5px;border:1px solid #ddd">✓</td><td style="padding:5px;border:1px solid #ddd">—</td><td style="padding:5px;border:1px solid #ddd">0=Draft, 1=Published</td></tr>
+        <tr><td style="padding:5px;border:1px solid #ddd"><code>created_at / updated_at</code></td><td style="padding:5px;border:1px solid #ddd">DATETIME</td><td style="padding:5px;border:1px solid #ddd">✓</td><td style="padding:5px;border:1px solid #ddd">—</td><td style="padding:5px;border:1px solid #ddd">Timestamps</td></tr>
+      </tbody>
+    </table>
+
+    <h4 style="margin:0 0 8px;color:var(--brand)">Table 3: <code>watch_page_chapter</code> (N:1, Optional)</h4>
+    <p style="color:var(--ink-3);margin:0 0 16px;font-size:11px">Fields: <code>id</code> PK · <code>watch_page_id</code> FK · <code>start_seconds</code> · <code>end_seconds</code> · <code>chapter_title</code> · <code>sort_order</code></p>
+
+    <h4 style="margin:0 0 8px;color:var(--brand)">Table 4: <code>watch_page_related</code> (N:N, Optional)</h4>
+    <p style="color:var(--ink-3);margin:0;font-size:11px">Fields: <code>watch_page_id</code> FK · <code>related_watch_page_id</code> FK · <code>sort_order</code><br>不填则系统按算法自动推荐同类产品的 Watch Page</p>
+  </div>
+</div>
+
+</body>
+</html>

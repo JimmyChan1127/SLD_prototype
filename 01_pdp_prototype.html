@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>原型 01 - 产品详情页改造</title>
+<style>
+  :root {
+    --brand: #00A99D;
+    --accent: #E63946;
+    --ink: #1a1a1a;
+    --ink-2: #555;
+    --ink-3: #888;
+    --line: #d0d0d0;
+    --wire: #999;
+    --wire-bg: #f4f4f4;
+    --new-bg: #E8F8F6;
+    --bg: #fafafa;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    margin: 0;
+    padding: 24px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .doc-title {
+    max-width: 1480px;
+    margin: 0 auto 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--ink);
+  }
+  .doc-title h1 { margin: 0 0 4px; font-size: 19px; }
+  .doc-title .sub { color: var(--ink-2); font-size: 12px; }
+
+  .layout {
+    max-width: 1480px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .ui-pane {
+    background: white;
+    border: 1px solid var(--line);
+    overflow: hidden;
+  }
+
+  .note-pane {
+    background: white;
+    border: 1px solid var(--line);
+    position: sticky;
+    top: 16px;
+  }
+  .note-pane-header {
+    background: #1a1a1a;
+    color: white;
+    padding: 10px 14px;
+    font-size: 12px;
+    font-weight: bold;
+  }
+  .note-list { padding: 10px 0; max-height: 90vh; overflow-y: auto; }
+  .note-item {
+    padding: 10px 14px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 12px;
+    display: flex;
+    gap: 8px;
+  }
+  .note-item:last-child { border-bottom: none; }
+  .note-num {
+    background: var(--brand);
+    color: white;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+  .note-num.new { background: var(--accent); }
+  .note-content { flex: 1; line-height: 1.6; color: var(--ink-2); }
+  .note-content b { color: var(--ink); }
+  .note-content code { background: #f5f5f5; padding: 1px 5px; border-radius: 2px; font-size: 11px; color: #008A80; }
+  .note-section-title {
+    background: #f5f5f5;
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: bold;
+    color: var(--ink-2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .pin {
+    position: absolute;
+    background: var(--accent);
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    z-index: 100;
+  }
+  .pin.new { background: var(--accent); }
+
+  .wire {
+    background: var(--wire-bg);
+    border: 1px dashed var(--wire);
+    color: var(--wire);
+    padding: 8px;
+    text-align: center;
+    font-size: 11px;
+  }
+
+  .top-banner { background: #333; color: white; text-align: center; padding: 6px; font-size: 11px; }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--line);
+  }
+  .logo-box {
+    font-weight: 900;
+    font-size: 16px;
+    color: var(--brand);
+    letter-spacing: 1px;
+  }
+  .nav-bar {
+    display: flex;
+    gap: 22px;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--line);
+    font-size: 11px;
+    color: var(--ink-2);
+  }
+  .breadcrumb {
+    padding: 8px 20px;
+    color: var(--ink-2);
+    font-size: 11px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .hero-section {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 16px;
+    padding: 16px 20px;
+    position: relative;
+  }
+
+  .thumb-col {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+  }
+  .thumb {
+    width: 70px;
+    height: 70px;
+    border: 2px solid var(--line);
+    background: var(--wire-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--wire);
+    position: relative;
+  }
+  .thumb.active { border-color: var(--brand); }
+  .thumb-video {
+    background: var(--new-bg);
+    border-color: var(--brand);
+    color: var(--brand);
+    font-weight: bold;
+  }
+  .thumb-video::after {
+    content: "▶";
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    background: var(--brand);
+    color: white;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    font-size: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .new-tag {
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    background: var(--accent);
+    color: white;
+    padding: 1px 3px;
+    font-size: 8px;
+    font-weight: bold;
+    border-radius: 2px;
+    z-index: 10;
+  }
+
+  .main-media {
+    background: #000;
+    aspect-ratio: 4/3;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+  .play-big {
+    width: 70px;
+    height: 70px;
+    border: 3px solid white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin: 0 auto 10px;
+  }
+  .video-mock { text-align: center; }
+  .video-mock .label { font-weight: bold; font-size: 13px; }
+  .video-mock .meta { font-size: 10px; opacity: 0.7; margin-top: 3px; }
+  .controls-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 32px;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    gap: 10px;
+    font-size: 10px;
+  }
+  .progress { flex: 1; height: 3px; background: rgba(255,255,255,0.3); }
+  .progress::after { content: ""; display: block; width: 35%; height: 100%; background: var(--brand); }
+  .auto-tag {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0,169,157,0.95);
+    padding: 3px 8px;
+    font-size: 10px;
+    font-weight: bold;
+  }
+
+  .product-info h1 { font-size: 18px; margin: 0 0 10px; }
+  .price-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px; }
+  .price-now { color: var(--accent); font-size: 22px; font-weight: bold; }
+  .price-was { color: var(--ink-2); text-decoration: line-through; font-size: 13px; }
+
+  .tabs { padding: 16px 20px 0; border-top: 1px solid #eee; }
+  .tab-headers {
+    display: flex;
+    gap: 20px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 12px;
+  }
+  .tab-headers div { padding: 6px 2px; color: var(--ink-2); font-size: 12px; }
+  .tab-headers div.active { color: var(--brand); border-bottom: 2px solid var(--brand); font-weight: bold; }
+
+  .watch-link-card {
+    margin: 1px 415px 16px 20px;
+    padding: 14px 18px;
+    background: var(--new-bg);
+    border: 2px solid var(--brand);
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+  }
+  .watch-link-card h3 { margin: 0 0 4px; font-size: 14px; color: var(--brand); }
+  .watch-link-card p { margin: 0; color: var(--ink-2); font-size: 11px; }
+  .watch-link-card .btn {
+    background: var(--brand);
+    color: white;
+    padding: 7px 16px;
+    font-size: 12px;
+    font-weight: bold;
+    text-decoration: none;
+  }
+
+  .section-divider {
+    background: #f0f0f0;
+    padding: 5px 20px;
+    font-size: 10px;
+    color: var(--ink-2);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+</style>
+</head>
+<body>
+
+<div class="doc-title">
+  <h1>原型 01 — 产品详情页改造（路线 A）</h1>
+  <div class="sub">基于 OpenCart · 仅改造 2 处 · 阅读方式：左侧界面（① ② 标号）+ 右侧索引说明</div>
+</div>
+
+<div class="layout">
+
+  <div class="ui-pane">
+    <div class="top-banner">📢 Memorial Day Notice...</div>
+    <div class="header">
+      <div class="logo-box">SIGNLEADER ®</div>
+      <div class="wire" style="width:280px">顶部相关元素：优惠码 / Credit / 用户 / 购物车等</div>
+    </div>
+    <div class="nav-bar">
+      <span>TRADE SHOW DISPLAYS</span>
+      <span style="color:var(--brand);font-weight:bold">ZIP UP BOOTHS 🔥</span>
+      <span>SEG BOOTHS</span>
+      <span>CANOPY TENTS</span>
+      <span>BACKDROPS</span>
+      <span>SIGNS & BANNERS</span>
+    </div>
+    <div class="breadcrumb">Home › Zip Up Booths › 10ft Pop Up Display Backdrop</div>
+
+    <div class="hero-section">
+
+      <div class="main-media">
+        <span class="pin" style="top:-12px;right:-12px">2</span>
+        <div class="video-mock">
+          <div class="play-big">▶</div>
+          <div class="label">产品主视频（自动播放、初始静音播放、循环播放）</div>
+          <div class="meta"> 1280×720 · OSS 自托管</div>
+        </div>
+        <div class="controls-bar">
+          <span>▶</span><span>0:12 / 0:45</span><div class="progress"></div><span>🔊</span><span>⛶</span>
+        </div>
+      </div>
+
+      <div class="product-info">
+        <h1>10ft Pop Up Display Backdrop</h1>
+        <div class="price-row">
+          <span class="price-now">$499.00</span>
+          <span class="price-was">$799.00</span>
+        </div>
+        <div class="wire" style="padding:5px;margin-bottom:8px">Fair Price / High Quality / 各种徽章</div>
+        <div style="color:var(--ink-2);font-size:11px;margin-bottom:8px">Product Code: TSP-VS-10ft-2</div>
+        <div class="wire">Hardware + Graphic / Graphic Only 切换</div>
+        <div class="wire" style="margin-top:6px">Product Option ▶</div>
+        <div class="wire" style="margin-top:6px">Delivery Options ▶</div>
+        <div class="wire" style="margin-top:6px;line-height:32px;background:var(--brand);color:white;border:none">🛒 ADD TO CART</div>
+        <div class="wire" style="margin-top:6px;border:1px dashed var(--brand);color:var(--brand);background:white">Free Online Design & 3D Mockup Tool</div>
+      </div>
+
+      <div class="thumb-col">
+        <div class="thumb thumb-video active" style="position:relative">
+          <span class="pin new" style="top:-12px;right:-12px">1</span>
+          🎬<br>VIDEO
+        </div>
+        <div class="thumb" style="background:#7ed4cf;color:white">IMG 1</div>
+        <div class="thumb">IMG 2</div>
+        <div class="thumb">IMG 3</div>
+        <div class="thumb">IMG 4</div>
+        <div class="thumb">IMG 5</div>
+      </div>
+    </div>
+
+    <div class="watch-link-card">
+      <span class="pin new" style="top:-12px;left:-12px">3</span>
+      <div>
+        <h3>🎬 Watch Full Video →</h3>
+        <p>Watch the full video for more great content!</p>
+      </div>
+      <a class="btn">Watch Video</a>
+    </div>
+
+    <div class="tabs">
+      <div class="tab-headers">
+        <div class="active">Product Introduction</div>
+        <div>Templates</div>
+        <div>Instructions</div>
+      </div>
+      <div class="wire" style="height:160px;display:flex;align-items:center;justify-content:center">
+        原 产品介绍视频 + 产品描述文字
+      </div>
+    </div>
+
+   
+    <div class="wire" style="margin:16px 20px;height:60px;display:flex;align-items:center;justify-content:center">原 底部其他模块</div>
+  </div>
+
+  <div class="note-pane">
+    <div class="note-pane-header">📌 详情页调整说明索引</div>
+    <div class="note-list">
+
+      <div class="note-section-title"><b>改造区 #1：主视觉（1期）</div>
+
+      <div class="note-item">
+        <span class="note-num new">1</span>
+        <div class="note-content">
+          <b>缩略图修改布局为横向且第 1 位插入"视频缩略图"</b><br>
+          • 默认 active 状态<br>
+          • 原营销主图变为第 2 张<br>
+          • 用户点击可在视频/图片间切换
+          <div style="background:#FFF8E1;border-left:3px solid #f57c00;padding:4px 8px;margin-top:4px;font-size:11px"><b style="color:#f57c00">数据源：</b>缩略图 poster 来自 <code>product_hero_video.thumbnail_16x9</code></div>
+        </div>
+      </div>
+
+      <div class="note-item">
+        <span class="note-num new">2</span>
+        <div class="note-content">
+          <b>主显示区默认渲染 video 元素</b><br>
+          属性：<code>自动播放，初始静音播放，自动循环播放</code><br><br>
+          <b>SEO 红线：</b><br>
+          • <code>&lt;video&gt;</code> 必须在初始 HTML 中存在，<b>禁止 JS 后注入</b><br>
+          • 视频首屏可见，不能在 tab / accordion 里<br>
+          • <code>display:block</code> 不能 hidden<br>
+          • 这是 Google 识别"主视频"的核心信号
+          <div style="background:#FFF8E1;border-left:3px solid #f57c00;padding:4px 8px;margin-top:4px;font-size:11px"><b style="color:#f57c00">数据源（详见 Prototype 03a）：</b><br>• <code>video.src</code> ← <code>product_hero_video.hero_video_url</code><br>• <code>video.poster</code> ← <code>product_hero_video.thumbnail_16x9</code><br>• JSON-LD <code>name</code> ← <code>video_title</code><br>• JSON-LD <code>description</code> ← <code>video_description</code><br>• JSON-LD <code>duration</code> ← <code>PT{video_duration}S</code><br>• JSON-LD <code>uploadDate</code> ← <code>upload_date</code></div>
+        </div>
+      </div>
+
+      <div class="note-section-title">改造区 #2：Watch Page 入口（2期）</div>
+
+      <div class="note-item">
+        <span class="note-num new">3</span>
+        <div class="note-content">
+          <b>Watch Page 互链卡片</b><br>
+          • 位置：缩略图 下方<br>
+          • 链接到 <code>/videos/{slug}-demo</code><br>
+          • 仅当 Watch Page <b>已发布</b>时显示（发布状态为草稿/未启用时，自动隐藏）<br>
+          • 用品牌青绿色，与周围内容明显区分<br><br>
+          <b>作用：</b><br>
+          ① 给用户提供完整观看入口<br>
+          ② 给 Watch Page 提供内链权重<br>
+          ③ 提示 Google 该产品有独立 Watch Page
+          <div style="background:#FFF8E1;border-left:3px solid #f57c00;padding:4px 8px;margin-top:4px;font-size:11px"><b style="color:#f57c00">数据源（详见 Prototype 03b）：</b><br>• 是否显示 ← <code>watch_page.status = 1 (Published)</code><br>• 链接 URL ← <code>/videos/{watch_page.slug}</code></div>
+        </div>
+      </div>
+
+      <div class="note-section-title">不改动区域</div>
+
+      <div class="note-item">
+        <span class="note-num" style="background:var(--ink-3)">—</span>
+        <div class="note-content">
+          <b>非上述提到的改动区域</b>：全部维持现状<br>
+        </div>
+      </div>
+
+      <div class="note-section-title">开发验收清单</div>
+
+      <div class="note-item">
+        <span class="note-num" style="background:#2e7d32">✓</span>
+        <div class="note-content">
+          ☐ View Source 能看到 <code>&lt;video&gt;</code> 标签<br>
+          ☐ View Source 能看到 VideoObject JSON-LD<br>
+          ☐ Rich Results Test 通过<br>
+          ☐ Lighthouse LCP &lt; 2.5s<br>
+          ☐ OSS URL 浏览器可直接播放（无防盗链）<br>
+          ☐ 海外主流浏览器适配，可自动正常播放
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

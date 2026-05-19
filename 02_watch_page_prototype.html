@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>原型 02 - 独立 Watch Page</title>
+<style>
+  :root {
+    --brand: #00A99D;
+    --brand-dark: #008A80;
+    --accent: #E63946;
+    --ink: #1a1a1a;
+    --ink-2: #555;
+    --ink-3: #888;
+    --line: #d0d0d0;
+    --wire: #999;
+    --wire-bg: #f4f4f4;
+    --new-bg: #E8F8F6;
+    --bg: #f8f8f8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    margin: 0;
+    padding: 24px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .doc-title {
+    max-width: 1480px;
+    margin: 0 auto 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--ink);
+  }
+  .doc-title h1 { margin: 0 0 4px; font-size: 19px; }
+  .doc-title .sub { color: var(--ink-2); font-size: 12px; }
+
+  .layout {
+    max-width: 1480px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .ui-pane {
+    background: white;
+    border: 1px solid var(--line);
+    overflow: hidden;
+  }
+
+  .note-pane {
+    background: white;
+    border: 1px solid var(--line);
+    position: sticky;
+    top: 16px;
+  }
+  .note-pane-header {
+    background: #1a1a1a;
+    color: white;
+    padding: 10px 14px;
+    font-size: 12px;
+    font-weight: bold;
+  }
+  .note-list { padding: 10px 0; max-height: 90vh; overflow-y: auto; }
+  .note-item {
+    padding: 10px 14px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 12px;
+    display: flex;
+    gap: 8px;
+  }
+  .note-item:last-child { border-bottom: none; }
+  .note-num {
+    background: var(--brand);
+    color: white;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+  .note-num.new { background: var(--accent); }
+  .note-num.warn { background: #f57c00; }
+  .note-content { flex: 1; line-height: 1.6; color: var(--ink-2); }
+  .note-content b { color: var(--ink); }
+  .note-content code { background: #f5f5f5; padding: 1px 5px; border-radius: 2px; font-size: 11px; color: #008A80; }
+  .note-section-title {
+    background: #f5f5f5;
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: bold;
+    color: var(--ink-2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .pin {
+    position: absolute;
+    background: var(--brand);
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    z-index: 100;
+  }
+  .pin.new { background: var(--accent); }
+  .pin.warn { background: #f57c00; }
+
+  .wire {
+    background: var(--wire-bg);
+    border: 1px dashed var(--wire);
+    color: var(--wire);
+    padding: 8px;
+    text-align: center;
+    font-size: 11px;
+  }
+
+  .top-banner { background: #333; color: white; text-align: center; padding: 6px; font-size: 11px; }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--line);
+  }
+  .logo-box { font-weight: 900; font-size: 16px; color: var(--brand); letter-spacing: 1px; }
+  .nav-bar {
+    display: flex;
+    gap: 22px;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--line);
+    font-size: 11px;
+    color: var(--ink-2);
+    position: relative;
+  }
+  .nav-bar .videos-link {
+    color: var(--brand);
+    font-weight: bold;
+    border-left: 1px solid #ddd;
+    padding-left: 22px;
+  }
+  .breadcrumb {
+    padding: 8px 20px;
+    color: var(--ink-2);
+    font-size: 11px;
+    border-bottom: 1px solid #eee;
+  }
+  .breadcrumb a { color: var(--brand); text-decoration: none; }
+
+  .watch-main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px 20px;
+  }
+  .watch-title { font-size: 24px; font-weight: bold; margin: 0 0 10px; line-height: 1.3; position: relative; }
+  .watch-meta {
+    display: flex;
+    gap: 14px;
+    color: var(--ink-2);
+    font-size: 11px;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .video-container {
+    background: #000;
+    aspect-ratio: 16/9;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-bottom: 20px;
+  }
+  .play-big {
+    width: 80px;
+    height: 80px;
+    border: 3px solid white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin-bottom: 12px;
+  }
+  .video-content { text-align: center; }
+  .video-content .label { font-weight: bold; font-size: 14px; }
+  .video-content .meta { font-size: 10px; opacity: 0.7; margin-top: 4px; }
+  .controls-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 36px;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    gap: 12px;
+    font-size: 11px;
+  }
+  .progress { flex: 1; height: 4px; background: rgba(255,255,255,0.3); }
+  .progress::after { content: ""; display: block; width: 22%; height: 100%; background: var(--brand); }
+  .auto-tag {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0,169,157,0.95);
+    padding: 3px 8px;
+    font-size: 10px;
+    font-weight: bold;
+  }
+  .cc-tag {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0,0,0,0.7);
+    padding: 3px 8px;
+    font-size: 10px;
+    border: 1px solid rgba(255,255,255,0.3);
+  }
+
+  .video-description, .chapters, .transcript-box {
+    background: #fafafa;
+    border: 1px solid #eee;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+  }
+  .video-description h2, .chapters h2, .transcript-box h2 {
+    font-size: 13px;
+    margin: 0 0 8px;
+  }
+  .video-description p { margin: 0 0 6px; color: var(--ink-2); font-size: 12px; }
+
+  .chapter-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 12px;
+  }
+  .chapter-item:last-child { border: none; }
+  .chapter-time {
+    background: var(--brand);
+    color: white;
+    padding: 1px 7px;
+    font-size: 10px;
+    font-weight: bold;
+    border-radius: 2px;
+    min-width: 44px;
+    text-align: center;
+  }
+
+  .transcript-line {
+    display: flex;
+    gap: 12px;
+    padding: 4px 0;
+    font-size: 11px;
+  }
+  .transcript-time { color: var(--brand); font-weight: bold; min-width: 44px; }
+
+  .cta-section {
+    background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+    color: white;
+    padding: 24px 20px;
+    margin-bottom: 16px;
+    text-align: center;
+    border-radius: 4px;
+    position: relative;
+  }
+  .cta-section h2 { margin: 0 0 4px; font-size: 20px; }
+  .cta-section p { margin: 0 0 14px; opacity: 0.9; font-size: 12px; }
+  .cta-button {
+    display: inline-block;
+    background: white;
+    color: var(--brand);
+    padding: 10px 24px;
+    font-weight: bold;
+    text-decoration: none;
+    font-size: 13px;
+    border-radius: 2px;
+  }
+  .cta-price {
+    display: inline-block;
+    margin-left: 10px;
+    font-size: 16px;
+    font-weight: bold;
+  }
+  .cta-price del { opacity: 0.6; font-weight: normal; font-size: 13px; margin-right: 3px; }
+
+  .related h2 {
+    font-size: 14px;
+    margin: 0 0 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #eee;
+  }
+  .related-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .related-card {
+    border: 1px solid #eee;
+    cursor: pointer;
+  }
+  .related-thumb {
+    aspect-ratio: 16/9;
+    background: var(--wire-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-3);
+    position: relative;
+    font-size: 10px;
+  }
+  .related-thumb::after {
+    content: "▶";
+    position: absolute;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+  }
+  .related-thumb .duration {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 1px 4px;
+    font-size: 9px;
+    z-index: 10;
+  }
+  .related-info { padding: 6px 8px; }
+  .related-info h3 { margin: 0 0 3px; font-size: 11px; line-height: 1.3; }
+  .related-info p { margin: 0; color: var(--ink-3); font-size: 10px; }
+
+  .simple-footer {
+    background: #1a1a1a;
+    color: #999;
+    padding: 12px 20px;
+    text-align: center;
+    font-size: 10px;
+  }
+  .simple-footer a { color: var(--brand); }
+</style>
+</head>
+<body>
+
+<div class="doc-title">
+  <h1>原型 02 — 独立 Watch Page（路线 B）</h1>
+  <div class="sub">URL: <code>/videos/{slug}-demo</code> · 与主站风格一致 · 阅读方式：左侧界面 + 右侧索引说明</div>
+</div>
+
+<div class="layout">
+
+  <div class="ui-pane">
+    <div class="top-banner">📢 Memorial Day Notice...</div>
+    <div class="header">
+      <div class="logo-box">SIGNLEADER ®</div>
+      <div class="wire" style="width:280px">优惠码 / Credit / 用户 / 购物车</div>
+    </div>
+    <div class="nav-bar">
+      <span>TRADE SHOW DISPLAYS</span>
+      <span>ZIP UP BOOTHS</span>
+      <span>SEG BOOTHS</span>
+      <span>CANOPY TENTS</span>
+      <span>BACKDROPS</span>
+      <span>SIGNS & BANNERS</span>
+      <span class="videos-link" style="position:relative">
+        🎬 VIDEOS
+        <span class="pin new" style="top:-12px;right:-12px;width:20px;height:20px;font-size:11px">1</span>
+      </span>
+    </div>
+    <div class="breadcrumb">
+      <a>Home</a> › <a>Videos</a> › 10ft Pop Up Display Setup Demo
+    </div>
+
+    <div class="watch-main">
+      <h1 class="watch-title">
+        <span class="pin" style="top:-8px;left:-32px">2</span>
+        10ft Pop Up Display Backdrop — 60 Second Setup Demo
+      </h1>
+      <div class="watch-meta">
+        <span>📅 Published Mar 15, 2026</span>
+        <span>⏱️ 0:45</span>
+        <span>👁️ 1,247 views</span>
+        <span>🏷️ Setup Demo</span>
+      </div>
+
+      <div class="video-container">
+        <span class="pin" style="top:-12px;right:-12px">3</span>
+        <div class="auto-tag">● AUTO PLAYING · MUTED</div>
+        <div class="cc-tag">CC English</div>
+        <div class="video-content">
+          <div class="play-big">▶</div>
+          <div class="label">Watch Page 主视频（自动播放）</div>
+          <div class="meta">≥ 30 秒 · 1080p · OSS 自托管 · 带 VTT 字幕</div>
+        </div>
+        <div class="controls-bar">
+          <span>▶</span><span>0:10 / 0:45</span><div class="progress"></div><span>CC</span><span>🔊</span><span>⛶</span>
+        </div>
+      </div>
+
+      <div class="video-description" style="position:relative">
+        <span class="pin" style="top:10px;right:-32px">4</span>
+        <h2>About This Video</h2>
+        <p>Watch how the Signleader 10ft Pop Up Display Backdrop sets up in under 60 seconds without any tools. This complete demo walks through unpacking, frame assembly, and graphic attachment using the Velcro tension fabric system.</p>
+        <p>Perfect for trade show exhibitors, marketing teams, and event planners looking for a portable, professional booth solution.</p>
+      </div>
+
+      <div class="chapters" style="position:relative">
+        <span class="pin" style="top:10px;right:-32px">5</span>
+        <h2>📑 Chapters</h2>
+        <div class="chapter-item">
+          <span class="chapter-time">0:00</span>
+          <span>Product Overview & Unboxing</span>
+        </div>
+        <div class="chapter-item">
+          <span class="chapter-time">0:15</span>
+          <span>Frame Assembly Process</span>
+        </div>
+        <div class="chapter-item">
+          <span class="chapter-time">0:35</span>
+          <span>Final Result & Use Cases</span>
+        </div>
+      </div>
+
+      <div class="transcript-box" style="position:relative">
+        <span class="pin warn" style="top:10px;right:-32px">6</span>
+        <h2>📝 Full Transcript</h2>
+        <div class="transcript-line">
+          <span class="transcript-time">0:00</span>
+          <span>Welcome to the Signleader 10ft Pop Up Display Backdrop demo...</span>
+        </div>
+        <div class="transcript-line">
+          <span class="transcript-time">0:08</span>
+          <span>The kit includes the aluminum frame, tension fabric graphic...</span>
+        </div>
+        <div class="transcript-line">
+          <span class="transcript-time">0:15</span>
+          <span>To start, unfold the collapsible aluminum frame...</span>
+        </div>
+      </div>
+
+      <div class="cta-section">
+        <span class="pin new" style="top:-12px;left:-12px">7</span>
+        <h2>Ready to order this booth?</h2>
+        <p>Tool-free setup · Free design service · Ships in 5 business days</p>
+        <a class="cta-button">VIEW PRODUCT DETAILS →</a>
+        <span class="cta-price"><del>$799</del> $499</span>
+      </div>
+
+      <div class="related">
+        <h2 style="position:relative">
+          Related Demo Videos
+          <span class="pin" style="top:-8px;right:0">8</span>
+        </h2>
+        <div class="related-grid">
+          <div class="related-card">
+            <div class="related-thumb">
+              VIDEO
+              <span class="duration">0:38</span>
+            </div>
+            <div class="related-info">
+              <h3>8ft PortaZip™ Display Backlit</h3>
+              <p>1.2k views · Mar 2026</p>
+            </div>
+          </div>
+          <div class="related-card">
+            <div class="related-thumb">
+              VIDEO
+              <span class="duration">1:02</span>
+            </div>
+            <div class="related-info">
+              <h3>10ft Curved Backdrop Setup</h3>
+              <p>890 views · Mar 2026</p>
+            </div>
+          </div>
+          <div class="related-card">
+            <div class="related-thumb">
+              VIDEO
+              <span class="duration">0:52</span>
+            </div>
+            <div class="related-info">
+              <h3>Trade Show Booth Tour</h3>
+              <p>2.1k views · Feb 2026</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="simple-footer">
+      © 2018 - 2026 Signleader Display · <a>Home</a> · <a>All Videos</a> · <a>Contact</a>
+    </div>
+  </div>
+
+  <div class="note-pane">
+    <div class="note-pane-header">📌 Watch Page 索引</div>
+    <div class="note-list">
+
+      <div class="note-section-title">导航变化</div>
+
+      <div class="note-item">
+        <span class="note-num new">1</span>
+        <div class="note-content">
+          <b>主导航新增 VIDEOS 入口</b><br>
+          链接到 <code>/videos/</code> 视频聚合页<br>
+          作用：建立站内视频内链权重，且让用户可独立浏览所有视频
+        </div>
+      </div>
+
+      <div class="note-section-title">页面结构（严格按序）</div>
+
+      <div class="note-item">
+        <span class="note-num">2</span>
+        <div class="note-content">
+          <b>H1 标题（视频上方）</b><br>
+          SEO 核心元素<br>
+          规范：含产品名 + "Demo" / "Setup" / "Tutorial" 类词
+          <div style="background:#FFF8E1;border-left:3px solid #f57c00;padding:4px 8px;margin-top:4px;font-size:11px"><b style="color:#f57c00">数据源：</b><code>watch_page.h1_title</code></div>
+        </div>
+      </div>
+
+      <div class="note-item">
+        <span class="note-num">3</span>
+        <div class="note-content">
+          <b>主视频（视觉中心，占首屏 60%+）</b><br>
+          关键：<br>
+          • 必须 ≥ 30 秒<br>
+          • 首屏可见<br>
+          • <code>autoplay muted playsinline controls</code><br>
+          • 带 VTT 字幕<br>
+          • OSS 自托管，不要 YouTube embed
+          <div style="background:#FFF8E1;border-left:3px solid #f57c00;padding:4px 8px;margin-top:4px;font-size:11px"><b style="color:#f57c00">数据源：</b><br>• <code>video.src</code> ← <code>watch_page.watch_video_url</code><br>• <code>video.poster</code> ← <code>watch_page.thumbnail_16x9</code><br>• <code>&lt;track&gt;</code> ← <code>watch_page.caption_vtt_url</code></div>
+        </div>
+      </div>
+
+      <div class="note-item">
+        <span class="note-num">4</span>
+        <div class="note-content">
+          <b>About This Video（描述）</b><br>
+          至少 100 字符<br>
+          <b>必须在 HTML 中可见</b>，不只是 JSON-LD
+          <div style="background:#FFF8E1;border-left:3px solid #f57c00;padding:4px 8px;margin-top:4px;font-size:11px"><b style="color:#f57c00">数据源：</b><br>• 段落 1 ← <code>watch_page.description_para_1</code>（必填）<br>• 段落 2 ← <code>watch_page.description_para_2</code>（选填）</div>
+        </div>
+      </div>
+
+      <div class="note-item">
+        <span class="note-num">5</span>
+        <div class="note-content">
+          <b>Chapters（章节）选填</b><br>
+          对应 JSON-LD 的 Clip + SeekToAction<br>
+          搜索结果可能显示"跳转到第 X 秒"
+          <div style="background:#FFF8E1;border-left:3px solid #f57c00;padding:4px 8px;margin-top:4px;font-size:11px"><b style="color:#f57c00">数据源：</b><code>watch_page_chapter</code> 表，按 <code>sort_order</code> 排序</div>
+        </div>
+      </div>
+
+      <div class="note-item">
+        <span class="note-num warn">6</span>
+        <div class="note-content">
+          <b>Transcript（完整字幕）强烈建议</b><br>
+          Google 能读字幕文本 = 免费 SEO 文本量<br>
+          视觉上可用 details 折叠，但 HTML 必须有
+          <div style="background:#FFF8E1;border-left:3px solid #f57c00;padding:4px 8px;margin-top:4px;font-size:11px"><b style="color:#f57c00">数据源：</b>解析 <code>watch_page.caption_vtt_url</code> 文件后渲染</div>
+        </div>
+      </div>
+
+      <div class="note-item">
+        <span class="note-num new">7</span>
+        <div class="note-content">
+          <b>CTA 大型按钮 → 详情页</b><br>
+          导流转化的核心<br>
+          必须含价格信息（如 <code>$799 $499</code>），增加点击动机
+          <div style="background:#FFF8E1;border-left:3px solid #f57c00;padding:4px 8px;margin-top:4px;font-size:11px"><b style="color:#f57c00">数据源：</b><br>• 链接 ← 通过 <code>watch_page.product_id</code> 关联 <code>oc_product</code> 取 SEO URL<br>• 价格 ← <code>oc_product.price</code></div>
+        </div>
+      </div>
+
+      <div class="note-item">
+        <span class="note-num">8</span>
+        <div class="note-content">
+          <b>相关视频 3 张卡片</b><br>
+          提升站内停留 + 内链<br>
+          后台不配置时系统按同类目自动推荐
+          <div style="background:#FFF8E1;border-left:3px solid #f57c00;padding:4px 8px;margin-top:4px;font-size:11px"><b style="color:#f57c00">数据源：</b><br>• 优先：<code>watch_page_related</code> 表手动配置<br>• 回退：按同类目 <code>oc_product.category</code> 自动推荐</div>
+        </div>
+      </div>
+
+      <div class="note-section-title">禁止放置</div>
+
+      <div class="note-item">
+        <span class="note-num" style="background:var(--accent)">✗</span>
+        <div class="note-content">
+          <b>不能放（会被判定为非 Watch Page）：</b><br>
+          • 价格选项 / SKU 切换<br>
+          • Add to Cart 按钮<br>
+          • 配送选项 / 规格表<br>
+          • Product Introduction Tab 这类多内容容器<br><br>
+          导流只能通过底部 CTA → 详情页
+        </div>
+      </div>
+
+      <div class="note-section-title">视觉一致性</div>
+
+      <div class="note-item">
+        <span class="note-num" style="background:var(--ink-3)">★</span>
+        <div class="note-content">
+          <b>与主站保持一致：</b><br>
+          • 顶部公告条、Logo、主导航<br>
+          • 品牌色 #00A99D<br>
+          • 字体与主站相同<br><br>
+          <b>差异：</b>Footer 简化为单行，避免分散视频注意力
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

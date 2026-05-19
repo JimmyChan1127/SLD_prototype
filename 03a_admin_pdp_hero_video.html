@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Prototype 03a - Admin: Hero Video Tab in Product Edit</title>
+<style>
+  :root {
+    --brand: #00A99D;
+    --brand-dark: #008A80;
+    --accent: #E63946;
+    --ink: #1a1a1a;
+    --ink-2: #555;
+    --ink-3: #888;
+    --line: #d0d0d0;
+    --bg: #f4f6f9;
+    --required: #E63946;
+    --inherit: #2e7d32;
+    --warn: #f57c00;
+    --success: #2e7d32;
+    --opencart-blue: #229ac8;
+    --sidebar: #2c3e50;
+    --sidebar-active: #00A99D;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    margin: 0;
+    padding: 20px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .doc-title {
+    max-width: 1600px;
+    margin: 0 auto 14px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--ink);
+  }
+  .doc-title h1 { margin: 0 0 4px; font-size: 18px; }
+  .doc-title .sub { color: var(--ink-2); font-size: 12px; }
+
+  .layout {
+    max-width: 1600px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 14px;
+    align-items: start;
+  }
+
+  /* UI Pane */
+  .ui-pane {
+    background: white;
+    border: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: 200px 1fr;
+  }
+
+  /* 左侧导航（参照截图 1/2 还原）*/
+  .sidebar {
+    background: #303841;
+    color: #ccc;
+    min-height: 700px;
+  }
+  .sidebar-top {
+    padding: 16px;
+    border-bottom: 1px solid #3d4654;
+    text-align: center;
+  }
+  .sidebar-top .logo {
+    color: var(--brand);
+    font-weight: 900;
+    letter-spacing: 1px;
+    font-size: 14px;
+  }
+  .sidebar-section {
+    padding: 12px 16px 4px;
+    font-size: 10px;
+    color: #5a6878;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    color: #b0bac5;
+    font-size: 12px;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+  }
+  .nav-item:hover { background: #3d4654; }
+  .nav-item.active {
+    background: #3d4654;
+    color: white;
+    border-left-color: var(--brand);
+  }
+  .nav-item .icon { width: 14px; text-align: center; font-size: 11px; }
+  .nav-item.child { padding-left: 36px; font-size: 11px; }
+  .nav-item.child.active { color: var(--brand); font-weight: bold; }
+
+  /* 内容区 */
+  .content { background: white; }
+  .admin-topbar {
+    background: white;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .admin-topbar .crumb {
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+  .admin-topbar .crumb b { color: var(--ink); }
+  .admin-topbar .user {
+    font-size: 12px;
+    color: var(--ink-2);
+  }
+  .page-title-bar {
+    padding: 14px 18px;
+    background: #f8f9fa;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .page-title-bar h2 { margin: 0; font-size: 17px; }
+  .btn {
+    padding: 7px 14px;
+    border: none;
+    border-radius: 3px;
+    font-size: 12px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-primary { background: var(--opencart-blue); color: white; }
+  .btn-secondary { background: #f0f0f0; color: var(--ink); margin-right: 6px; }
+  .btn-brand { background: var(--brand); color: white; }
+  .btn-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+
+  /* Tabs */
+  .tabs {
+    background: white;
+    border-bottom: 1px solid var(--line);
+    padding: 0 18px;
+    display: flex;
+    gap: 2px;
+  }
+  .tab {
+    padding: 10px 14px;
+    color: var(--ink-2);
+    font-size: 12px;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    position: relative;
+  }
+  .tab.active {
+    color: var(--brand);
+    border-bottom-color: var(--brand);
+    font-weight: 600;
+  }
+  .tab.new::after {
+    content: "NEW";
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: var(--accent);
+    color: white;
+    font-size: 8px;
+    padding: 1px 3px;
+    border-radius: 2px;
+  }
+
+  /* 表单 */
+  .form-section { padding: 18px; }
+  .form-section + .form-section { border-top: 1px solid #eee; }
+  .form-section h3 {
+    margin: 0 0 12px;
+    font-size: 13px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 12px;
+    padding: 8px 0;
+    align-items: center;
+    position: relative;
+  }
+  .form-label { font-size: 12px; }
+  .form-label .req { color: var(--required); margin-left: 2px; }
+  .form-input {
+    padding: 6px 9px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    font-size: 12px;
+    width: 100%;
+    font-family: inherit;
+  }
+  textarea.form-input { min-height: 56px; resize: vertical; }
+  .form-input[readonly] { background: #fafafa; color: var(--ink-3); }
+
+  .upload-box {
+    border: 2px dashed var(--brand);
+    background: #E8F8F6;
+    padding: 14px;
+    text-align: center;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .upload-box .icon { font-size: 22px; color: var(--brand); }
+  .upload-box .text { margin-top: 3px; font-size: 12px; color: var(--ink-2); }
+  .upload-box .meta { margin-top: 2px; font-size: 10px; color: var(--ink-3); }
+
+  .thumb-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .thumb-upload {
+    border: 1px dashed var(--line);
+    aspect-ratio: 4/3;
+    background: #fafafa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: var(--ink-3);
+    cursor: pointer;
+  }
+  .thumb-upload .ratio { font-weight: bold; color: var(--brand); font-size: 13px; }
+  .thumb-upload .size { font-size: 10px; }
+
+  /* 一键创建 Watch Page */
+  .create-watch {
+    margin: 18px;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, #E8F8F6, white);
+    border: 2px solid var(--brand);
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+  }
+  .create-watch h4 { margin: 0 0 3px; color: var(--brand-dark); font-size: 13px; }
+  .create-watch p { margin: 0 0 5px; color: var(--ink-2); font-size: 11px; }
+
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: bold;
+  }
+  .pill-not { background: #f0f0f0; color: var(--ink-2); }
+  .pill-draft { background: #FFE0B2; color: #E65100; }
+  .pill-published { background: #C8E6C9; color: #1B5E20; }
+
+  /* SEO 预览面板 */
+  .seo-preview {
+    background: linear-gradient(180deg, #f8f9fb, #eef1f5);
+    border: 1px solid #ddd;
+    padding: 16px 20px;
+    margin: 16px 350px 0% 8px;
+    border-radius: 4px;
+  }
+  .seo-preview h4 {
+    margin: 0 0 12px;
+    font-size: 13px;
+    color: var(--ink);
+  }
+  .serp-card {
+    background: white;
+    border: 1px solid #eee;
+    padding: 12px;
+    display: flex;
+    gap: 12px;
+  }
+  .serp-thumb {
+    width: 92px;
+    height: 92px;
+    background: #ddd;
+    flex-shrink: 0;
+    position: relative;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .serp-thumb::after {
+    content: "▶";
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+  }
+  .serp-thumb .dur {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    background: rgba(0,0,0,0.85);
+    color: white;
+    padding: 1px 4px;
+    font-size: 10px;
+    border-radius: 2px;
+    z-index: 10;
+  }
+  .serp-info { flex: 1; min-width: 0; }
+  .serp-info .url { color: #006621; font-size: 11px; }
+  .serp-info .title {
+    color: #1a0dab;
+    font-size: 16px;
+    margin: 2px 0;
+    line-height: 1.3;
+  }
+  .serp-info .desc { color: #4d5156; font-size: 12px; line-height: 1.4; }
+
+  .annotate-block {
+    margin: 16px 24px;
+    padding: 12px 16px;
+    background: var(--note-bg);
+    border-left: 4px solid #F5A623;
+    font-size: 12px;
+  }
+  .annotate-block strong { color: #F5A623; }
+
+  /* 索引气泡 */
+  .pin {
+    position: absolute;
+    background: var(--accent);
+    color: white;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: bold;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    z-index: 50;
+  }
+  .pin.new { background: var(--accent); }
+
+  /* 右侧索引 */
+  .note-pane {
+    background: white;
+    border: 1px solid var(--line);
+    position: sticky;
+    top: 16px;
+  }
+  .note-pane-header {
+    background: #1a1a1a;
+    color: white;
+    padding: 10px 14px;
+    font-size: 12px;
+    font-weight: bold;
+  }
+  .note-list { padding: 8px 0; max-height: 90vh; overflow-y: auto; }
+  .note-item {
+    padding: 10px 14px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 12px;
+    display: flex;
+    gap: 8px;
+  }
+  .note-item:last-child { border-bottom: none; }
+  .note-num {
+    background: var(--accent);
+    color: white;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+  .note-num.new { background: var(--accent); }
+  .note-num.green { background: var(--success); }
+  .note-content { flex: 1; line-height: 1.55; color: var(--ink-2); }
+  .note-content b { color: var(--ink); }
+  .note-content code {
+    background: #f5f5f5;
+    padding: 1px 5px;
+    border-radius: 2px;
+    font-size: 11px;
+    color: var(--brand-dark);
+  }
+  .note-section-title {
+    background: #f5f5f5;
+    padding: 5px 14px;
+    font-size: 11px;
+    font-weight: bold;
+    color: var(--ink-2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .field-map {
+    background: #FFF8E1;
+    border-left: 3px solid var(--warn);
+    padding: 4px 8px;
+    margin-top: 4px;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+  .field-map b { color: var(--warn); }
+</style>
+</head>
+<body>
+
+<div class="doc-title">
+  <h1>Prototype 03a — Admin: Hero Video Tab in Product Edit Page</h1>
+  <div class="sub">Catalog › Products › Edit Product · 新增 Hero Video Tab，仅控制详情页主视频</div>
+</div>
+
+<div class="layout">
+
+  <!-- 左：界面（含完整左侧导航）-->
+  <div class="ui-pane">
+
+    <!-- 左侧导航（参照截图 1/2 还原）-->
+    <div class="sidebar">
+      <div class="sidebar-top">
+        <div class="logo">SIGNLEADER<br><span style="font-size:9px;color:#888">DISPLAY</span></div>
+      </div>
+      <div class="sidebar-section">Navigation</div>
+      <div class="nav-item"><span class="icon">📊</span> Dashboard</div>
+      <div class="nav-item active"><span class="icon">🏷️</span> Catalog <span style="margin-left:auto">›</span></div>
+      <div class="nav-item child">Categories</div>
+      <div class="nav-item child">Promotions</div>
+      <div class="nav-item child">Header Notice</div>
+      <div class="nav-item child active">Products</div>
+      <div class="nav-item child" style="background:#3d465400;color:var(--accent);position:relative">
+        Videos
+        <span style="position:absolute;right:14px;background:var(--accent);color:white;font-size:8px;padding:1px 4px;border-radius:2px">NEW（2期）</span>
+      </div>
+      <div class="nav-item child">B2S Holiday</div>
+      <div class="nav-item child">Filters</div>
+      <div class="nav-item child">Attributes</div>
+      <div class="nav-item child">Options</div>
+      <div class="nav-item child">Manufacturers</div>
+      <div class="nav-item child">Design Templates</div>
+      <div class="nav-item child">Setup Instructions</div>
+      <div class="nav-item child">Reviews</div>
+      <div class="nav-item child">Q & A</div>
+      <div class="nav-item child">Blog</div>
+      <div class="nav-item child">Information</div>
+      <div class="nav-item child">Elastic Search</div>
+      <div class="nav-item"><span class="icon">🔌</span> Extensions <span style="margin-left:auto">›</span></div>
+      <div class="nav-item"><span class="icon">🎨</span> Design <span style="margin-left:auto">›</span></div>
+      <div class="nav-item"><span class="icon">🛒</span> Sales <span style="margin-left:auto">›</span></div>
+      <div class="nav-item"><span class="icon">👥</span> Customers <span style="margin-left:auto">›</span></div>
+      <div class="nav-item"><span class="icon">📣</span> Marketing <span style="margin-left:auto">›</span></div>
+    </div>
+
+    <!-- 右侧内容 -->
+    <div class="content">
+      <div class="admin-topbar">
+        <span class="crumb">Catalog › Products › <b>Edit Product</b> › 10ft Pop Up Display Backdrop</span>
+        <span class="user">👤 Junming Chen ▾</span>
+      </div>
+
+      <div class="page-title-bar">
+        <h2>Edit Product — 10ft Pop Up Display Backdrop</h2>
+        <div>
+          <a class="btn btn-icon" style="background:var(--opencart-blue)">💾</a>
+          <a class="btn btn-icon" style="background:#999">↩</a>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab">General</div>
+        <div class="tab">Data</div>
+        <div class="tab">Links</div>
+        <div class="tab">Attribute</div>
+        <div class="tab">Option</div>
+        <div class="tab">Image</div>
+        <div class="tab active" style="position:relative">
+         Hero Video
+          <span class="pin new" style="top:-8px;right:-8px;width:18px;height:18px;font-size:10px">1</span>
+        </div>
+        <div class="tab">Discount</div>
+        <div class="tab">Special</div>
+        <div class="tab">Reward Points</div>
+        <div class="tab">SEO</div>
+        <div class="tab">Design</div>
+        <div class="tab">Video</div>
+        <div class="tab">Shipping</div>
+        <div class="tab">Package</div>
+      </div>
+
+      <div class="form-section">
+        <h3>Hero Video Configuration</h3>
+
+        <div class="form-row">
+          <div class="form-label">Video File<span class="req">*</span></div>
+          <div style="position:relative">
+            <span class="pin" style="top:6px;right:-26px">2</span>
+            <div class="upload-box">
+              <div class="icon">🎬</div>
+              <div class="text">Click or drag to upload main video</div>
+              <div class="meta">MP4 · 1080p · Max 50MB · Auto-uploaded to OSS</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">Video Title<span class="req">*</span></div>
+          <div style="position:relative">
+            <span class="pin" style="top:4px;right:-26px">3</span>
+            <input type="text" class="form-input" value="10ft Pop Up Display Backdrop — 60 Second Setup Demo">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">Video Description<span class="req">*</span></div>
+          <div style="position:relative">
+            <span class="pin" style="top:4px;right:-26px">4</span>
+            <textarea class="form-input">Watch how the 10ft Pop Up Display Backdrop sets up in under 60 seconds using tool-free Velcro tension fabric assembly.</textarea>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">Duration (sec)<span class="req">*</span></div>
+          <div style="position:relative;display:flex;gap:8px;align-items:center">
+            <input class="form-input" value="45" min="30" style="max-width:200px; background: #8f8f8fd0;">
+            <span style="font-size:11px;color:var(--ink-3)">s；Auto-detected after upload</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">Upload Date<span class="req">*</span></div>
+          <div style="position:relative;display:flex;gap:8px;align-items:center">
+            <input class="form-input" value="2026-03-15" style="max-width:200px; background: #8f8f8fd0;">
+            <span style="font-size:11px;color:var(--ink-3)">Auto-detected after saved</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">Width (px)<span class="req">*</span></div>
+          <div style="position:relative;display:flex;gap:8px;align-items:center;">
+            <input  class="form-input" value="45" min="30" style="max-width:200px; background: #8f8f8fd0;">
+            <span style="font-size:11px;color:var(--ink-3)">px；Auto-detected after upload</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">Height (px)<span class="req">*</span></div>
+          <div style="position:relative;display:flex;gap:8px;align-items:center;">
+            <input class="form-input" value="45" min="30" style="max-width:200px; background: #8f8f8fd0;">
+            <span style="font-size:11px;color:var(--ink-3)">Auto-detected after upload</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">File size (MB)<span class="req">*</span></div>
+          <div style="position:relative;display:flex;gap:8px;align-items:center;">
+            <input class="form-input" value="45" min="30" style="max-width:200px; background: #8f8f8fd0;">
+            <span style="font-size:11px;color:var(--ink-3)">Auto-detected after upload</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">File Type<span class="req">*</span></div>
+          <div style="position:relative;display:flex;gap:8px;align-items:center;">
+            <input class="form-input" value="MP4" min="30" style="max-width:200px; background: #8f8f8fd0;">
+            <span style="font-size:11px;color:var(--ink-3)">Auto-detected after upload</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">Thumbnails (3 ratios)<span class="req">*</span></div>
+          <div style="position:relative">
+            <span class="pin" style="top:4px;right:-26px">5</span>
+            <div class="thumb-grid">
+              <div class="thumb-upload"><div class="ratio">16:9</div><div class="size">1280×720</div></div>
+              <div class="thumb-upload"><div class="ratio">4:3</div><div class="size">1200×900</div></div>
+              <div class="thumb-upload"><div class="ratio">1:1</div><div class="size">1080×1080</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">Keyword Tags<span class="req">*</span></div>
+          <input type="text" class="form-input" value="pop up display, trade show booth, setup demo">
+        </div>
+      </div>
+
+      <!-- 一键创建 Watch Page -->
+      <div class="create-watch">
+        <span class="pin new" style="top:-10px;left:-10px">6</span>
+        <div>
+          <h4>🚀 Create a Watch Page for this product?</h4>
+          <p>A Watch Page boosts Google Video Search traffic. Recommended for core SKUs.</p>
+          <div>Current status: <span class="pill pill-not">Not Created</span></div>
+        </div>
+        <a class="btn btn-brand" style="padding:9px 16px;font-weight:bold">Create Watch Page →</a>
+      </div>
+
+      <div style="padding:14px 18px;background:#f8f9fa;border-top:1px solid #eee;font-size:11px;color:var(--ink-3);text-align:right">
+        OpenCart Admin v3.0.3.x · 2026 Signleader Display
+      </div>
+    </div>
+  </div>
+
+  <!-- 右：索引 -->
+  <div class="note-pane">
+    <div class="note-pane-header">📌 后台新增主视频配置功能说明索引（配合详情页调整）</div>
+    <div class="note-list">
+
+      <div class="note-section-title">UI Annotations</div>
+
+      <div class="note-item">
+        <span class="note-num new">1</span>
+        <div class="note-content">
+          <b>产品配置详情页新增 Tab: Hero Video</b><br>
+          位置：Image 之后、Discount 之前。仅控制详情页主视频，与 SKU 价格/库存解耦。
+          <div class="field-map"><b>数据库：</b>整个 Tab 数据存入新表 <code>product_hero_video</code>，以 <code>product_id</code> 1:1 关联 <code>oc_product</code></div>
+        </div>
+      </div>
+
+      <div class="note-item">
+        <span class="note-num">2</span>
+        <div class="note-content">
+          <b>Video File</b><br>
+          上传本地视频，至 OSS <code>/videos/hero/{slug}.mp4</code><br>
+          <div class="field-map"><b>数据库字段：</b><code>hero_video_url</code> VARCHAR(500)</div>
+        </div>
+      </div>
+
+      <div class="note-item">
+        <span class="note-num">3</span>
+        <div class="note-content">
+          <b>Video Title</b> · 50-100 字符<br>
+          含产品名 + 卖点。<br>
+          错误示例：<code>video1</code> / <code>Untitled</code>
+          <div class="field-map"><b>数据库字段：</b><code>video_title</code> VARCHAR(200) · <b>用于：</b>JSON-LD 的 <code>name</code></div>
+        </div>
+      </div>
+
+      <div class="note-item">
+        <span class="note-num">4</span>
+        <div class="note-content">
+          <b>Video Description</b> · 100-300 字符<br>
+          描述视频内容（不是产品描述），含 1-2 长尾关键词。
+          <div class="field-map"><b>数据库字段：</b><code>video_description</code> TEXT · <b>用于：</b>JSON-LD 的 <code>description</code></div>
+        </div>
+      </div>
+
+      <div class="note-item">
+        <span class="note-num">5</span>
+        <div class="note-content">
+          <b>Thumbnails — 3 Ratios (Mandatory)</b><br>
+          • 16:9 → 视频搜索<br>
+          • 4:3 → 移动端<br>
+          • 1:1 → 视频徽章<br>
+          WebP/JPG · 每张 &lt; 200KB
+          <div class="field-map"><b>数据库字段：</b><code>thumbnail_16x9</code> / <code>thumbnail_4x3</code> / <code>thumbnail_1x1</code></div>
+        </div>
+      </div>
+
+      <div class="note-item">
+        <span class="note-num new">6</span>
+        <div class="note-content">
+          <b>Create Watch Page Button（2期）</b><br>
+          1、点击后，在新增的Video模块创建记录，自动预填以下Video模块的 6 项字段：<br>
+          • Linked Product（填入本产品的 产品名（Model 编码））<br>
+          • URL Slug（填入产品名 slug + <code>-demo</code>）<br>
+          • H1 Title （填入本页的 Video Title 值）<br>
+          • Publish Date（初始值填入创建时间当天）<br>
+          • 3 Ratios（初始值分别填入本页面 3 ratios）<br>
+          • Keyword Tags（填入本页面的 Keyword Tags 值）<br><br>
+          以上<b>需支持双向同步</b><br><br>
+          若以上6项字段值均无，则不支持创建，提示：Oops! Please complete all required fields.<br><br>
+          2、状态值展示联动：<code>Not Created</code> / <code>Draft</code> / <code>Published</code> 三态。
+        </div>
+      </div>
+
+      <div class="note-section-title">保存后，隐藏处理逻辑</div>
+
+      <div class="note-item">
+        <span class="note-num green"></span>
+        <div class="note-content">
+          <b>前端 JS 实时 + 后端二次校验</b><br>
+          ✓ Title 50-100 chars, description 100-300 chars<br>
+          ✓ All 3 thumbnails uploaded<br>
+          ✓ OSS URL publicly accessible
+        </div>
+      </div>
+
+  <div class="note-section-title">谷歌收录后，预期效果</div>
+
+      <div class="note-item">
+        <span class="note-num green"></span>
+        <div class="note-content">
+          <b>详见下方</b><br>
+          若 Google 收录成功后，Google 搜索结果（视频徽章效果）预期如下图所示。
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SEO 预览 -->
+  <div class="seo-preview">
+    <h4>👁 Google 搜索结果预览（视频徽章效果）</h4>
+    <div class="serp-card">
+      <div class="serp-thumb">
+        <span class="dur">0:45</span>
+      </div>
+      <div class="serp-info">
+        <div class="url">www.signleaderdisplay.com › zip-up-booths › 10ft-pop-up-display...</div>
+        <div class="title">10ft Pop Up Display Backdrop — 60 Second Setup Demo | Signleader</div>
+        <div class="desc">Watch how the 10ft Pop Up Display Backdrop sets up in under 60 seconds using tool-free Velcro tension fabric assembly...</div>
+      </div>
+    </div>
+  </div>
+
+
+</body>
+</html>
