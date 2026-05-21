@@ -14,7 +14,7 @@
     --line: #d0d0d0;
     --bg: #f4f6f9;
     --required: #E63946;
-    --inherit: #2e7d32;
+    --inherit: #E63946;
     --warn: #f57c00;
     --success: #2e7d32;
     --opencart-blue: #229ac8;
@@ -433,6 +433,38 @@
     line-height: 1.5;
   }
   .field-map b { color: var(--warn); }
+  
+/* 章节标记表 */
+  .chapter-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+  }
+  .chapter-table th {
+    background: #f5f5f5;
+    padding: 8px;
+    text-align: left;
+    font-size: 12px;
+    border: 1px solid #eee;
+  }
+  .chapter-table td {
+    padding: 6px;
+    border: 1px solid #eee;
+  }
+  .chapter-table input {
+    border: 1px solid #ddd;
+    padding: 5px 8px;
+    width: 100%;
+    font-size: 12px;
+  }
+  .add-row {
+    color: var(--brand);
+    font-size: 12px;
+    cursor: pointer;
+    padding: 8px 0;
+    display: inline-block;
+  }
+
 </style>
 </head>
 <body>
@@ -514,7 +546,7 @@
           <select><option>Any</option><option>No Captions</option><option>No Chapters</option><option>No Description</option></select>
         </label>
         <input type="search" placeholder="🔍 Search by product name / SKU" style="width:180px">
-        <div class="filter-stat">Total <b>247</b> · Published <b style="color:var(--success)">23</b> · Draft <b style="color:var(--warn)">7</b> · Not Created <b>217</b></div>
+        <div class="filter-stat">Total <b>247</b> · Published <b style="color:var(--success)">23</b> · Draft <b style="color:var(--warn)">7</b> · Not Created <b>217</b>· Updated <b>217</b></div>
       </div>
 
       <table class="video-list-table">
@@ -659,16 +691,16 @@
           列表与全站产品列表实时同步<br>
           • Product：展示 产品名 + Model编码<br>
           • Status：展示视频状态，包括<br>
-          >> Published：已向谷歌发布的视频<br>
-          >> Draft：编辑中未向谷歌发送的视频草稿<br>
-          >> Not Created：未在产品配置页触发创建或在Videos模块中未经点击Creat的产品<br>
+          —— Published：已向谷歌发布的视频<br>
+          —— Draft：编辑中未向谷歌发送的视频草稿<br>
+          —— Not Created：未在产品配置页触发创建或在Videos模块中未经点击Creat的产品<br>
          • Video：视频文件是否为空，否“✅”，是“-”<br>
          • CC：字幕文件是否为空，否“✅”，是“-”<br>
          • Chapters：章节是否为空，否“✅”，是“-”<br>
          • Description：段落描述是否为空<br>
-         >> 均为空，则“-”<br>
-         >> 部分为空，则提示哪部分，如“Para 2 missing”<br>
-         >> 均不为空，则“Full“<br>
+         —— 均为空，则“-”<br>
+         —— 部分为空，则提示哪部分，如“Para 2 missing”<br>
+         —— 均不为空，则“Full“<br>
          • Updated：记录保存更新时间<br>
          • Action：Creat、Edit<br>
         </div>
@@ -679,7 +711,7 @@
         <span class="note-num">4</span>
         <div class="note-content">
           <b>支持批量操作</b><br>
-          • Bulk Publish：支持多选指定产品（草稿），批量发布<br>
+          • Bulk Publish：支持多选指定产品（Daft 和 Updated），批量发布<br>
           • Bulk Export：支持多选指定产品，批量导出做内容审计<br>
           • Bulk Delete：支持多选指定产品，批量清空内部内容，⚠️不是删除产品，清空需二次确认<br>
         </div>
@@ -738,7 +770,8 @@
         <span class="user">👤 Junming Chen ▾</span>
       </div>
 
-      <div class="page-title-bar">
+      <div class="page-title-bar" style="position:relative">
+        <span class="pin new" style="top:14px;left:-10px">1</span>
         <h2 style="display:flex;align-items:center;gap:10px">
           Watch Page — 10ft Pop Up Display Setup Demo
           <span class="pill pill-draft">Draft</span>
@@ -757,7 +790,7 @@
           <div class="form-label">Linked Product<span class="req">*</span></div>
           <div style="position:relative">
             <span class="pin inherit" style="top:4px;right:-26px">2</span>
-            <input type="text" class="form-input inherited" value="10ft Pop Up Display Backdrop (TSP-VS-10ft-2)" readonly>
+            <input type="text" class="form-input" value="10ft Pop Up Display Backdrop (TSP-VS-10ft-2)" readonly style="background-color: #d4d1d1;"">
           </div>
         </div>
 
@@ -766,7 +799,7 @@
           <div style="display:flex;gap:4px;align-items:center;position:relative">
             <span class="pin inherit" style="top:4px;right:-26px">3</span>
             <span style="color:var(--ink-3);font-size:12px">/videos/</span>
-            <input type="text" class="form-input inherited" value="10ft-pop-up-display-backdrop-demo">
+            <input type="text" class="form-input" value="10ft-pop-up-display-backdrop-demo">
           </div>
         </div>
 
@@ -774,18 +807,24 @@
           <div class="form-label">H1 Title<span class="req">*</span></div>
           <div style="position:relative">
             <span class="pin inherit" style="top:4px;right:-26px">4</span>
-            <input type="text" class="form-input inherited" value="10ft Pop Up Display Backdrop — Complete Setup Demo Video">
+            <input type="text" class="form-input" value="10ft Pop Up Display Backdrop — Complete Setup Demo Video">
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-label">Publish Date<span class="req"></span></div>
-          <input type="date" class="form-input inherited" value="2026-05-14" style="max-width:200px">
+          <div style="position:relative">
+            <span class="pin inherit" style="top:4px;right:-26px">5</span>
+            <input type="text" class="form-input inherited" value="2026-05-14" style="max-width:200px;background-color: #d4d1d1;">
+          </div>
         </div>
 
         <div class="form-row">
           <div class="form-label">Status<span class="req"></span></div>
-          <input type="text" class="form-input inherited" value="Draft" style="max-width:200px">
+          <div style="position:relative">
+            <span class="pin inherit" style="top:4px;right:-26px">6</span>
+            <input type="text" class="form-input inherited" value="Draft" style="max-width:200px;background-color: #d4d1d1;">
+          </div>
         </div>
 
       </div>
@@ -793,7 +832,7 @@
         
 
       <div class="form-section">
-        <h3>Video & Captions</h3>
+        <h3>Video</h3>
 
         <div class="form-row">
           <div class="form-label">Long-form Video<span class="req">*</span></div>
@@ -808,25 +847,71 @@
         </div>
 
         <div class="form-row">
-          <div class="form-label">Captions (VTT) <span class="opt">Strongly Recommended</span></div>
+          <div class="form-label">Duration (sec)<span class="req">*</span></div>
+          <div style="position:relative;display:flex;gap:8px;align-items:center">
+            <span class="pin" style="top:4px;right:-26px">8</span>
+            <input class="form-input" value="45" min="30" style="max-width:200px; background:  #d4d1d1;">
+            <span style="font-size:11px;color:var(--ink-3)">Auto-detected after upload</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">Width (px)<span class="req">*</span></div>
+          <div style="position:relative;display:flex;gap:8px;align-items:center;">
+            <input  class="form-input" value="45" min="30" style="max-width:200px; background:  #d4d1d1;">
+            <span style="font-size:11px;color:var(--ink-3)">Auto-detected after upload</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">Height (px)<span class="req">*</span></div>
+          <div style="position:relative;display:flex;gap:8px;align-items:center;">
+            <input class="form-input" value="45" min="30" style="max-width:200px; background:  #d4d1d1;">
+            <span style="font-size:11px;color:var(--ink-3)">Auto-detected after upload</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">File size (MB)<span class="req">*</span></div>
+          <div style="position:relative;display:flex;gap:8px;align-items:center;">
+            <input class="form-input" value="45" min="30" style="max-width:200px; background:   #d4d1d1;">
+            <span style="font-size:11px;color:var(--ink-3)">Auto-detected after upload</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-label">File Type<span class="req">*</span></div>
+          <div style="position:relative;display:flex;gap:8px;align-items:center;">
+            <input class="form-input" value="MP4" min="30" style="max-width:200px; background:  #d4d1d1;">
+            <span style="font-size:11px;color:var(--ink-3)">Auto-detected after upload</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="form-section">
+        <h3>Thumbnails</h3>
+
+        <div class="form-row">
+          <div class="form-label">3 Ratios<span class="req">*</span></div>
           <div style="position:relative">
-            <span class="pin warn" style="top:6px;right:-26px">8</span>
-            <div class="upload-box warn">
-              <div class="icon">📝</div>
-              <div class="text">Upload VTT caption file</div>
-              <div class="meta">Can publish without, but SEO impact reduced</div>
+            <span class="pin inherit" style="top:4px;right:-26px">9</span>
+            <div class="thumb-grid">
+              <div class="thumb-upload inherited"><div class="ratio" style="margin-top:8px">16:9</div></div>
+              <div class="thumb-upload inherited"><div class="ratio" style="margin-top:8px">4:3</div></div>
+              <div class="thumb-upload inherited"><div class="ratio" style="margin-top:8px">1:1</div></div>
             </div>
           </div>
         </div>
       </div>
 
       <div class="form-section">
-        <h3>Video Description (Visible on Page)</h3>
+        <h3>Video Description</h3>
 
         <div class="form-row">
           <div class="form-label">Paragraph 1<span class="req">*</span></div>
           <div style="position:relative">
-            <span class="pin" style="top:4px;right:-26px">9</span>
+            <span class="pin" style="top:4px;right:-26px">10</span>
             <textarea class="form-input" placeholder="e.g. Watch how the Signleader 10ft Pop Up Display Backdrop sets up in under 60 seconds..."></textarea>
           </div>
         </div>
@@ -839,44 +924,82 @@
       </div>
 
       <div class="form-section">
-        <h3>Thumbnails</h3>
+        <h3>Captions (Optional)</h3>
 
         <div class="form-row">
-          <div class="form-label">3 Ratios<span class="req">*</span></div>
+          <div class="form-label">Captions (VTT) <span class="opt">Strongly Recommended</span></div>
           <div style="position:relative">
-            <span class="pin inherit" style="top:4px;right:-26px">11</span>
-            <div class="thumb-grid">
-              <div class="thumb-upload inherited"><div class="ratio" style="margin-top:8px">16:9</div></div>
-              <div class="thumb-upload inherited"><div class="ratio" style="margin-top:8px">4:3</div></div>
-              <div class="thumb-upload inherited"><div class="ratio" style="margin-top:8px">1:1</div></div>
+            <span class="pin" style="top:6px;right:-26px">11</span>
+            <div class="upload-box warn">
+              <div class="icon">📝</div>
+              <div class="text">Upload VTT caption file</div>
+              <div class="meta">Can publish without, but SEO impact reduced</div>
             </div>
           </div>
         </div>
+
       </div>
 
       <div class="form-section" style="background:#fafafa">
-        <h3>Chapters & Related Videos (Optional)</h3>
+        <h3>Chapters (Optional)</h3>
 
-        <div class="form-row">
-          <div class="form-label">Chapters <span class="opt">Optional</span></div>
-          <div style="position:relative">
-            <span class="pin" style="top:4px;right:-26px">12</span>
-            <div style="padding:8px;background:white;border:1px solid #eee;font-size:11px;color:var(--ink-3)">
-              <a style="color:var(--brand)">+ Add Chapter</a> · Configure start/end time and title
+            <div style="position:relative">
+              <span class="pin" style="top:6px;right:-26px">12</span>
             </div>
+            <div class="form-section">
+
+            <div class="form-row" style="grid-template-columns:1fr">
+              <table class="chapter-table">
+                <thead>
+                  <tr>
+                    <th style="width:80px">Start Time</th>
+                    <th style="width:80px">End Time</th>
+                    <th>Chapter Title</th>
+                    <th style="width:60px">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><input type="text" value="0:00"></td>
+                    <td><input type="text" value="0:15"></td>
+                    <td><input type="text" value="Product Overview & Unboxing"></td>
+                    <td style="text-align:center;color:var(--accent);cursor:pointer">×</td>
+                  </tr>
+                  <tr>
+                    <td><input type="text" value="0:15"></td>
+                    <td><input type="text" value="0:35"></td>
+                    <td><input type="text" value="Frame Assembly Process"></td>
+                    <td style="text-align:center;color:var(--accent);cursor:pointer">×</td>
+                  </tr>
+                  <tr>
+                    <td><input type="text" value="0:35"></td>
+                    <td><input type="text" value="0:45"></td>
+                    <td><input type="text" value="Final Result & Use Cases"></td>
+                    <td style="text-align:center;color:var(--accent);cursor:pointer">×</td>
+                  </tr>
+                </tbody>
+              </table>
+              <span class="add-row">+ Add Chapter</span>
+            </div>
+
           </div>
-          
-        </div>
+
+      </div>
+
+<!-- 直接后端处理，不作关联展示
+      <div class="form-section" style="background:#fafafa">
+        <h3>Related Videos (Optional)</h3>
 
         <div class="form-row">
-          <div class="form-label">Related Videos <span class="opt">Optional</span></div>
+          <div class="form-label">Related Products </div>
           <div style="position:relative">
             <span class="pin" style="top:4px;right:-26px">13</span>
-            <select class="form-input" style="height:46px"><option>Leave empty = system auto-recommend by category</option></select>
+            <select class="form-input" style="height:46px;background-color:  #d4d1d1;"><option>Leave empty = system auto-recommend by category</option></select>
           </div>
         </div>
       </div>
-
+-->
+      
     </div>
   </div>
 
@@ -885,18 +1008,18 @@
     <div class="note-pane-header">📌 Videos 模块 编辑页 说明索引</div>
 
     <div class="note-list">
-      <div class="note-section-title">Watch Page</div>
+      <div class="note-section-title">顶部</div>
        <div class="note-item">
         <span class="note-num inherit">1</span>
         <div class="note-content">
           <b>操作</b><br>
           • Cancel：取消编辑；<br>
           • Save：保存编辑；<br>
-          • Publish：发布&重新发布，watch page页面更新，重新向谷歌提交更新信息；<br>
+          • Publish：发布&重新发布（必填项不可为空），watch page页面更新，重新向谷歌提交更新信息；<br>
         </div>
       </div>
 
-      <div class="note-section-title">Basic Information 基础信息</div>
+      <div class="note-section-title">基础信息</div>
 
       <div class="note-item">
         <span class="note-num inherit">2</span>
@@ -945,19 +1068,17 @@
         <div class="note-content">
           <b>Status </b><br>
           • 展示视频状态，不可编辑<br>
-            >> Not Created：未在产品配置页触发创建或在Videos模块中未经点击Creat的产品<br>
-            >> Draft：已创建，未有过发布记录的记录，在save draft后，状态为Draft<br>
-            >> Published：已发布且未再有更新内容的记录，状态为Publish<br>
-            >> Updated：已发布，更新新内容后，在save draft后，状态为Updated<br>
-           
+            —— Not Created：未在产品配置页触发创建或在Videos模块中未经点击Creat的产品<br>
+            —— Draft：已创建，未有过发布记录的记录，在save draft后，状态为Draft<br>
+            —— Published：已发布且未再有更新内容的记录，状态为Publish<br>
             
         </div>
       </div>
 
-      <div class="note-section-title">Video & Captions<br>区别产品页Hero Video的内容</div>
+      <div class="note-section-title">视频及相关基础信息<br>区别产品页 Hero Video，此处为长视频</div>
 
       <div class="note-item">
-        <span class="note-num">5</span>
+        <span class="note-num">7</span>
         <div class="note-content">
           <b>Long-form Video </b><br>
           与详情页主视频<b>不同的文件</b>：<br>
@@ -969,41 +1090,58 @@
       </div>
 
       <div class="note-item">
-        <span class="note-num warn">6</span>
+        <span class="note-num">8</span>
         <div class="note-content">
-          <b>VTT Captions (Strongly Recommended)</b><br>
-          Google 能读字幕 = 免费 SEO 文本量。<br>
-          没字幕也能发布，但效果打折。
-          <div class="field-map"><b>数据库字段：</b><code>caption_vtt_url</code> VARCHAR(500) NULL</div>
+          <b>自动获取（文件上传、更新后自动获取更新，不可编辑）</b> <br>
+          • Duration (sec)：视频时长<br>
+          • Upload Date：视频上传/更新时间<br>
+          • Width (px)：视频文件宽度<br>
+          • Height (px)：视频文件高度<br>
+          • File size (MB)：视频文件大小<br>
+          • File Type：视频文件类型<br>
         </div>
       </div>
 
+      <div class="note-section-title">封面图</div>
+
       <div class="note-item">
-        <span class="note-num">7</span>
+        <span class="note-num inherit">9</span>
         <div class="note-content">
-          <b>Description Para 1 (Required)</b><br>
+          <b>Thumbnails (Inherited, Replaceable)</b><br>
+          继承 Hero Video 的 3 张缩略图，支持修改双向同步。<br>
+          <div class="field-map"><b>数据库字段：</b><code>thumbnail_16x9</code> / <code>thumbnail_4x3</code> / <code>thumbnail_1x1</code></div>
+        </div>
+      </div>
+
+      <div class="note-section-title">视频描述</div>
+
+      <div class="note-item">
+        <span class="note-num">10</span>
+        <div class="note-content">
+          <b>Paragraph</b><br>
+          1必填，2选填<br>
           100-200 字符<br>
           <b>必须在 HTML 中可见</b>，不只在 JSON-LD（否则 Google 忽略）。
           <div class="field-map"><b>数据库字段：</b><code>description_para_1</code> TEXT</div>
         </div>
       </div>
 
-      <div class="note-section-title">Inherited Thumbnails</div>
+      <div class="note-section-title">字幕（推荐完善）</div>
 
       <div class="note-item">
-        <span class="note-num inherit">8</span>
+        <span class="note-num">11</span>
         <div class="note-content">
-          <b>Thumbnails (Inherited, Replaceable)</b><br>
-          默认沿用 Hero Video 的 3 张缩略图。<br>
-          推荐：替换为长版视频首帧，与新视频视觉一致。
-          <div class="field-map"><b>数据库字段：</b><code>thumbnail_16x9</code> / <code>thumbnail_4x3</code> / <code>thumbnail_1x1</code></div>
+          <b>Chapters (Optional)</b><br>
+          Google 能读字幕 = 免费 SEO 文本量。<br>
+          没字幕也能发布，但SEO效果打折。
+          <div class="field-map"><b>数据库字段：</b><code>caption_vtt_url</code> VARCHAR(500) NULL</div>
         </div>
       </div>
-
-      <div class="note-section-title">Optional</div>
+      
+      <div class="note-section-title">章节（推荐完善）</div>
 
       <div class="note-item">
-        <span class="note-num">9</span>
+        <span class="note-num">12</span>
         <div class="note-content">
           <b>Chapters (Optional)</b><br>
           配置后生成 JSON-LD 的 Clip + SeekToAction，搜索结果可能显示"跳转到第 X 秒"。<br>
@@ -1011,33 +1149,32 @@
           <div class="field-map"><b>数据库表：</b><code>watch_page_chapter</code>（N:1）</div>
         </div>
       </div>
-
+<!--
       <div class="note-item">
-        <span class="note-num">10</span>
+        <span class="note-num">13</span>
         <div class="note-content">
           <b>Related Videos (Optional)</b><br>
           不选 = 系统按同类目自动推荐。
           <div class="field-map"><b>数据库表：</b><code>watch_page_related</code>（N:N）</div>
         </div>
       </div>
-
-      <div class="note-section-title">Hidden Logic (After Save)</div>
+-->
+      <div class="note-section-title">隐藏逻辑</div>
 
       <div class="note-item">
         <span class="note-num green">A</span>
         <div class="note-content">
-          <b>Pre-publish Validation</b><br>
-          • Required missing → can save as Draft, cannot Publish<br>
-          • Strongly recommended missing → can Publish, but warning modal pops up
+          <b>发布限制（列表页&编辑页发布相关功能同理）</b><br>
+          • 必填未填 → 可支持保存草稿, 不支持发布，必填存在为空时，点击发布提示：Before publishing, please double-check that all required fields are filled in. <br>
         </div>
       </div>
 
       <div class="note-item">
         <span class="note-num green">B</span>
         <div class="note-content">
-          <b>Status State Machine</b><br>
-          <code>Not Created</code> → <code>Draft</code>（创建时）→ <code>Published</code>（必填齐全后）<br>
-          <code>Published</code> 可改回 <code>Draft</code>（下线）
+          <b>状态机</b><br>
+          <code>Not Created</code> → <code>Draft</code>（创建时）→ <code>Published</code>（必填齐全后发布）→ <code>Draft</code>（发布后更新相关内容但未再次发布，视频下线）<br>
+          注意<code>Published</code> 可改回 <code>Draft</code>（下线）
           <div class="field-map"><b>数据库字段：</b><code>status</code> TINYINT (0=Draft, 1=Published)</div>
         </div>
       </div>
