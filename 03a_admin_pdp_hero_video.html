@@ -532,7 +532,7 @@
           <div class="form-label">Video Title<span class="req">*</span></div>
           <div style="position:relative">
             <span class="pin" style="top:4px;right:-26px">3</span>
-            <input type="text" class="form-input" value="10ft Pop Up Display Backdrop — 60 Second Setup Demo">
+            <input type="text" class="form-input" value="10ft Pop Up Display Backdrop">
           </div>
         </div>
 
@@ -605,10 +605,7 @@
           </div>
         </div>
 
-        <div class="form-row">
-          <div class="form-label">Keyword Tags<span class="req">*</span></div>
-          <input type="text" class="form-input" value="pop up display, trade show booth, setup demo">
-        </div>
+
       </div>
 
       <!-- 一键创建 Watch Page -->
@@ -657,8 +654,7 @@
         <span class="note-num">3</span>
         <div class="note-content">
           <b>Video Title</b> · 50-100 字符<br>
-          含产品名 + 卖点。<br>
-          错误示例：<code>video1</code> / <code>Untitled</code>
+          初始值默认 = {产品名} ,与 Watch Page 双向同步<br>
           <div class="field-map"><b>数据库字段：</b><code>video_title</code> VARCHAR(200) · <b>用于：</b>JSON-LD 的 <code>name</code></div>
         </div>
       </div>
@@ -667,7 +663,7 @@
         <span class="note-num">4</span>
         <div class="note-content">
           <b>Video Description</b> · 100-300 字符<br>
-          描述视频内容（不是产品描述），含 1-2 长尾关键词。
+          描述视频内容（不是产品描述），含 1-2 长尾关键词，与 Watch Page 双向同步。
           <div class="field-map"><b>数据库字段：</b><code>video_description</code> TEXT · <b>用于：</b>JSON-LD 的 <code>description</code></div>
         </div>
       </div>
@@ -693,6 +689,7 @@
           • 4:3 → 移动端<br>
           • 1:1 → 视频徽章<br>
           WebP/JPG · 每张 &lt; 200KB
+          • 与 Watch Page 双向同步。
           <div class="field-map"><b>数据库字段：</b><code>thumbnail_16x9</code> / <code>thumbnail_4x3</code> / <code>thumbnail_1x1</code></div>
         </div>
       </div>
@@ -701,16 +698,18 @@
         <span class="note-num new">7</span>
         <div class="note-content">
           <b>Create Watch Page Button（2期）</b><br>
-          1、点击后，在新增的Video模块创建记录，自动预填以下Video模块的 6 项字段：<br>
-          • Linked Product（填入本产品的 产品名（Model 编码））<br>
-          • URL Slug（填入产品名 slug + <code>-demo</code>）<br>
+          1、新增的 Video模块 中没有创建本产品 Video 时，出现该卡片。<br>
+          2、点击“Create Watch Page →“按钮后，在新增的Video模块创建记录，相关字段初始值，继承本页对应字段值：<br>
+          • Linked Product（填入本产品的 {产品名}（Model 编码））<br>
+          • URL Slug（填入产品名 slug）<br>
           • H1 Title （填入本页的 Video Title 值）<br>
+          • Paragraph 1（填入本页的 Video Description 值）<br>
           • Publish Date（初始值填入创建时间当天）<br>
           • 3 Ratios（初始值分别填入本页面 3 ratios）<br>
-          • Keyword Tags（填入本页面的 Keyword Tags 值）<br><br>
           以上<b>需支持双向同步</b><br><br>
-          若以上6项字段值均无，则不支持创建，提示：Oops! Please complete all required fields.<br><br>
-          2、状态值展示联动：<code>Not Created</code> / <code>Draft</code> / <code>Published</code> 三态。
+          若以上字段值为空，则不支持创建，提示：Oops! Please complete all required fields.<br><br>
+          2、以上字段值后续与 Video模块 对应产品配置数据双向同步，本卡片不再展示。<br><br>
+          3、若 Video模块 先创建本产品 video，则反向同步内容，本卡片不展示。<br>
         </div>
       </div>
 
