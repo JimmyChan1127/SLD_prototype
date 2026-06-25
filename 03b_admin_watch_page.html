@@ -531,6 +531,7 @@
         <h2>Videos — Watch Page Management</h2>
         <div>
           <a class="btn btn-secondary">📊 Export CSV</a>
+          <a class="btn btn-primary">➕ Creaat Video</a>
         </div>
       </div>
 
@@ -666,6 +667,7 @@
         <div class="note-content">
           <b>Catalog 新增 Videos 模块</b><br>
           • 全站 Watch Page 统一管理入口。与 Product 编辑页中的 Hero Video 区分。<br>
+          • 支持一键创建 Video。<br>
           • 支持一键导出全部数据。<br>
           <div class="field-map"><b>数据库表：</b><code>watch_page</code></div>
         </div>
@@ -674,7 +676,7 @@
       <div class="note-item">
         <span class="note-num">2</span>
         <div class="note-content">
-          <b>支持多为筛选</b><br>
+          <b>支持多维筛选</b><br>
           快速定位SEO不友好项：<br>
           • Status：支持筛选 Published（已发布）、Draft（草稿）、Not Created（未创建），初始默认All<br>
           • Category：支持根据产品品类筛选，数据源Categories<br>
@@ -799,7 +801,7 @@
           <div style="display:flex;gap:4px;align-items:center;position:relative">
             <span class="pin inherit" style="top:4px;right:-26px">3</span>
             <span style="color:var(--ink-3);font-size:12px">/videos/</span>
-            <input type="text" class="form-input" value="10ft-pop-up-display-backdrop-demo">
+            <input type="text" class="form-input" value="10ft-pop-up-display-backdrop">
           </div>
         </div>
 
@@ -807,7 +809,7 @@
           <div class="form-label">H1 Title<span class="req">*</span></div>
           <div style="position:relative">
             <span class="pin inherit" style="top:4px;right:-26px">4</span>
-            <input type="text" class="form-input" value="10ft Pop Up Display Backdrop — Complete Setup Demo Video">
+            <input type="text" class="form-input" value="10ft Pop Up Display Backdrop">
           </div>
         </div>
 
@@ -1025,7 +1027,7 @@
         <span class="note-num inherit">2</span>
         <div class="note-content">
           <b>Linked Product</b><br>
-          • 展示产品名（Model），系统自动填入，不可编辑。
+          • 展示 {产品名}（Model），系统自动填入，不可编辑。<br>
           <div class="field-map"><b>数据库字段：</b><code>product_id</code> FK</div>
         </div>
       </div>
@@ -1035,9 +1037,8 @@
         <div class="note-content">
           <b>URL Slug </b><br>
           • 记录视频别名<br>
-          • 初始默认 = 产品 slug + <code>-demo</code>，可按需修改<br>
+          • 初始值默认 = 产品 slug，可按需修改<br>
           • 需保证唯一性。<br>
-          • 可通过产品配置创建获取初始值。
           <div class="field-map"><b>数据库字段：</b><code>slug</code> VARCHAR(255) UNIQUE</div>
         </div>
       </div>
@@ -1047,8 +1048,7 @@
         <div class="note-content">
           <b>H1 Title </b><br>
           • 视频一级标题<br>
-          • 默认拼接：<code>{Product Name} — Complete Setup Demo Video</code><br>
-          • 可通过产品配置创建获取初始值。
+          • 初始值默认 = <code>{Product Name} </code>，可按需修改<br>
           <div class="field-map"><b>数据库字段：</b><code>h1_title</code> VARCHAR(200) · <b>用于：</b>页面 H1 + JSON-LD <code>name</code></div>
         </div>
       </div>
@@ -1108,7 +1108,7 @@
         <span class="note-num inherit">9</span>
         <div class="note-content">
           <b>Thumbnails (Inherited, Replaceable)</b><br>
-          继承 Hero Video 的 3 张缩略图，支持修改双向同步。<br>
+          与 Hero Video 的 3 张缩略图双向同步。<br>
           <div class="field-map"><b>数据库字段：</b><code>thumbnail_16x9</code> / <code>thumbnail_4x3</code> / <code>thumbnail_1x1</code></div>
         </div>
       </div>
@@ -1119,8 +1119,9 @@
         <span class="note-num">10</span>
         <div class="note-content">
           <b>Paragraph</b><br>
-          1必填，2选填<br>
-          100-200 字符<br>
+          • 1必填，与 Hero Video 的 Video Description 双向同步。<br>
+          • 2选填<br>
+          • 100-200 字符<br>
           <b>必须在 HTML 中可见</b>，不只在 JSON-LD（否则 Google 忽略）。
           <div class="field-map"><b>数据库字段：</b><code>description_para_1</code> TEXT</div>
         </div>
